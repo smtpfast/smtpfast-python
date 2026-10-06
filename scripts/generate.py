@@ -235,6 +235,12 @@ for path, item in SPEC["paths"].items():
             "result": result_type,
             "idempotent": any(p["in"] == "header" and p["name"].lower() == "idempotency-key" for p in params),
             "paginated": method == "get" and any(q[0] == "after" for q in query),
+            # The typed method parses JSON, so it asks for JSON when the default format is something else.
+            "json_format": any(
+                p["in"] == "query" and p["name"] == "format" and "json" in (p.get("schema") or {}).get("enum", [])
+                and (p.get("schema") or {}).get("default") != "json"
+                for p in params
+            ),
         })
 
 # A list pages with a cursor when its answer has data[] and has_more.
@@ -280,7 +286,11 @@ def signature(op, with_body=True):
 
 def call_args(op, with_body=True):
     path_args = ", ".join(f'"{p}": {ident(p)}' for p in op["path_params"])
-    query = ", ".join(f'"{name}": {py}' for name, py, _, _ in op["query"] if with_body or name not in ("page", "before", "latest"))
+    query = ", ".join(
+        f'"{name}": {py} if {py} is not None else "json"' if name == "format" and op.get("json_format") else f'"{name}": {py}'
+        for name, py, _, _ in op["query"]
+        if with_body or name not in ("page", "before", "latest")
+    )
     parts = [f'"{op["http"]}"', f'"{op["path"]}"', f"path_params={{{path_args}}}" if path_args else "path_params=None"]
     parts.append(f"query={{{query}}}" if query else "query=None")
     parts.append("body=params" if with_body and op["body"] else "body=None")

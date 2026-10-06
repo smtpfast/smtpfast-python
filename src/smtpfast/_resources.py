@@ -319,7 +319,7 @@ class ContactsResource(_SyncResource):
 
     def export(self, *, format: Literal["csv", "json"] | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, options: RequestOptions | None = None) -> ContactList:
         """Export contacts. `GET /v1/contacts/export`"""
-        return self._core.request("GET", "/v1/contacts/export", path_params=None, query={"format": format, "status": status, "disposable": disposable}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/contacts/export", path_params=None, query={"format": format if format is not None else "json", "status": status, "disposable": disposable}, body=None, options=options)  # type: ignore[no-any-return]
 
     def get(self, id: str, *, options: RequestOptions | None = None) -> Contact:
         """Retrieve a contact. `GET /v1/contacts/{id}`"""
@@ -1101,7 +1101,7 @@ class AsyncContactsResource(_AsyncResource):
 
     async def export(self, *, format: Literal["csv", "json"] | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, options: RequestOptions | None = None) -> ContactList:
         """Export contacts. `GET /v1/contacts/export`"""
-        return await self._core.request("GET", "/v1/contacts/export", path_params=None, query={"format": format, "status": status, "disposable": disposable}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/contacts/export", path_params=None, query={"format": format if format is not None else "json", "status": status, "disposable": disposable}, body=None, options=options)  # type: ignore[no-any-return]
 
     async def get(self, id: str, *, options: RequestOptions | None = None) -> Contact:
         """Retrieve a contact. `GET /v1/contacts/{id}`"""
