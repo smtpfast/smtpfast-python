@@ -24,13 +24,22 @@ jobs:
           python-version: "3.13"
       - run: pip install -e '.[dev]'
       - run: python scripts/pull_spec.py
+      # Until the API publishes x-sdk-group/x-sdk-method, there is nothing to regenerate from.
+      - name: Spec has SDK names
+        id: names
+        run: |
+          if grep -q '"x-sdk-method"' spec/openapi.json; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "::notice::The published spec has no x-sdk names yet; skipping."; echo "ok=false" >> "$GITHUB_OUTPUT"; fi
       - run: python scripts/generate.py
+        if: steps.names.outputs.ok == 'true'
       - run: mypy
+        if: steps.names.outputs.ok == 'true'
       - run: pytest -q
+        if: steps.names.outputs.ok == 'true'
       # A pull request opened with the default GITHUB_TOKEN does not start the
       # CI workflow. Set SDK_BOT_TOKEN (a GitHub App or fine-grained token with
       # contents and pull-requests write) so it does.
       - uses: peter-evans/create-pull-request@v7
+        if: steps.names.outputs.ok == 'true'
         with:
           token: ${{ secrets.SDK_BOT_TOKEN || github.token }}
           branch: spec-sync
