@@ -9,10 +9,13 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import re
 from collections.abc import Mapping
 from typing import Any
 
 from ._errors import SMTPfastError
+
+_HEX_SHA256 = re.compile(r"[0-9a-f]{64}")
 
 
 class WebhookVerificationError(SMTPfastError):
@@ -22,9 +25,12 @@ class WebhookVerificationError(SMTPfastError):
 def verify_signature(payload: str | bytes, signature: str | None, secret: str) -> bool:
     if not signature or not secret:
         return False
+    signature = signature.strip().lower()
+    if not _HEX_SHA256.fullmatch(signature):
+        return False
     body = payload.encode() if isinstance(payload, str) else payload
     expected = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, signature.strip().lower())
+    return hmac.compare_digest(expected, signature)
 
 
 def parse(payload: str | bytes, headers: Mapping[str, str], secret: str) -> dict[str, Any]:

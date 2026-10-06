@@ -123,9 +123,9 @@ class InboxesThreadsEmailsResource(_SyncResource):
         """List thread emails. `GET /v1/inboxes/{inbox_id}/threads/{thread_id}/emails`"""
         return self._core.request("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/emails", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"latest": latest, "limit": limit, "after": after, "before": before}, body=None, options=options)  # type: ignore[no-any-return]
 
-    def list_all(self, inbox_id: str, thread_id: str, *, latest: bool | None = None, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> Iterator[InboxThreadEmail]:
+    def list_all(self, inbox_id: str, thread_id: str, *, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> Iterator[InboxThreadEmail]:
         """Every item of list, fetching the following pages as you iterate."""
-        return self._core.paginate("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/emails", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"latest": latest, "limit": limit, "after": after}, body=None, options=options)
+        return self._core.paginate("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/emails", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"limit": limit, "after": after}, body=None, options=options)
 
     def get(self, inbox_id: str, thread_id: str, email_id: str, *, options: RequestOptions | None = None) -> InboxThreadEmail:
         """Retrieve a thread email. `GET /v1/inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}`"""
@@ -905,9 +905,9 @@ class AsyncInboxesThreadsEmailsResource(_AsyncResource):
         """List thread emails. `GET /v1/inboxes/{inbox_id}/threads/{thread_id}/emails`"""
         return await self._core.request("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/emails", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"latest": latest, "limit": limit, "after": after, "before": before}, body=None, options=options)  # type: ignore[no-any-return]
 
-    def list_all(self, inbox_id: str, thread_id: str, *, latest: bool | None = None, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> AsyncIterator[InboxThreadEmail]:
+    def list_all(self, inbox_id: str, thread_id: str, *, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> AsyncIterator[InboxThreadEmail]:
         """Every item of list, fetching the following pages as you iterate."""
-        return self._core.paginate("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/emails", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"latest": latest, "limit": limit, "after": after}, body=None, options=options)
+        return self._core.paginate("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/emails", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"limit": limit, "after": after}, body=None, options=options)
 
     async def get(self, inbox_id: str, thread_id: str, email_id: str, *, options: RequestOptions | None = None) -> InboxThreadEmail:
         """Retrieve a thread email. `GET /v1/inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}`"""

@@ -170,3 +170,49 @@ def test_webhook_signature():
     assert webhooks.parse(payload, {"X-SMTPfast-Signature": sig}, secret)["type"] == "email.delivered"
     with pytest.raises(webhooks.WebhookVerificationError):
         webhooks.parse(payload, {"x-smtpfast-signature": "00"}, secret)
+
+
+def test_custom_header_does_not_make_a_post_retryable():
+    client, rec = make([ok({"error": "oops"}, 500, NO_WAIT)], headers={"Idempotency-Key": "x"})
+    with pytest.raises(smtpfast.InternalServerError):
+        client.broadcasts.send_test("bc_1", {"to": "me@inbox.dev"})
+    assert len(rec.calls) == 1
+
+
+def test_callers_header_key_is_kept_in_any_case():
+    client, rec = make([ok({"id": "em_1"})])
+    client.emails.send({"from": "a@yourapp.dev", "to": "b@inbox.dev"}, options={"headers": {"idempotency-key": "mine"}})
+    assert rec.calls[0].headers.get_list("idempotency-key") == ["mine"]
+
+
+def test_long_retry_after_stops_retries():
+    client, rec = make([ok({"error": "down"}, 503, {"Retry-After": "120"})])
+    with pytest.raises(smtpfast.InternalServerError):
+        client.domains.list()
+    assert len(rec.calls) == 1
+
+
+def test_unreadable_retry_after_falls_back_to_backoff():
+    client, rec = make([ok({"error": "down"}, 503, {"Retry-After": "NaN"})] * 2, max_retries=1)
+    with pytest.raises(smtpfast.InternalServerError):
+        client.domains.list()
+    assert len(rec.calls) == 2
+
+
+def test_redirect_is_an_error():
+    client, _ = make([httpx.Response(302, headers={"Location": "https://smtpfa.st/login"})])
+    with pytest.raises(smtpfast.APIError) as info:
+        client.domains.list()
+    assert info.value.status == 302
+
+
+def test_list_all_drops_before_and_latest():
+    client, rec = make([ok({"data": [{"id": "a"}], "has_more": True}), ok({"data": [], "has_more": False})])
+    list(client.inboxes.threads.emails.list_all("in_1", "th_1", limit=1))
+    assert [dict(c.url.params) for c in rec.calls] == [{"limit": "1"}, {"limit": "1", "after": "a"}]
+
+
+def test_non_ascii_signature_is_rejected_not_raised():
+    assert not webhooks.verify_signature("{}", "é", "secret")
+    with pytest.raises(webhooks.WebhookVerificationError):
+        webhooks.parse("{}", {"X-SMTPfast-Signature": "é"}, "secret")

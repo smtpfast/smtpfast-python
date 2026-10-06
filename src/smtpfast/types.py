@@ -96,7 +96,7 @@ Inbox = TypedDict(
         "name": NotRequired[str],
         "email_address": NotRequired[str],
         "domain_id": NotRequired[str],
-        "receiving_address": NotRequired[Any],
+        "receiving_address": NotRequired[None],
         "from_name": NotRequired[Union[str, None]],
         "unread": NotRequired[int],
         "drafts": NotRequired[int],
@@ -551,7 +551,7 @@ CreateContactRequest = TypedDict(
         "first_name": NotRequired[str],
         "last_name": NotRequired[str],
         "unsubscribed": NotRequired[bool],
-        "properties": NotRequired[dict[str, Any]],
+        "properties": NotRequired[dict[str, Union[str, float, bool, None]]],
         "segment_ids": NotRequired[list[str]],
     },
 )
@@ -723,7 +723,7 @@ Contact = TypedDict(
         "segments": NotRequired[list[SegmentSummary]],
         "object": NotRequired[str],
         "properties": NotRequired[dict[str, Any]],
-        "suppression": NotRequired[Any],
+        "suppression": NotRequired[Union[ContactSuppression, None]],
     },
 )
 
@@ -886,7 +886,7 @@ TemplateVariable = TypedDict(
         "id": NotRequired[str],
         "key": str,
         "type": Literal["string", "number"],
-        "fallback_value": NotRequired[Any],
+        "fallback_value": NotRequired[Union[str, float, None]],
         "created_at": NotRequired[str],
         "updated_at": NotRequired[str],
     },
@@ -901,7 +901,7 @@ CreateTemplateRequest = TypedDict(
         "alias": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
-        "reply_to": NotRequired[Any],
+        "reply_to": NotRequired[Union[str, list[str], None]],
         "html": NotRequired[str],
         "text": NotRequired[Union[str, None]],
         "markdown": NotRequired[Union[str, None]],
@@ -920,7 +920,7 @@ UpdateTemplateRequest = TypedDict(
         "alias": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
-        "reply_to": NotRequired[Any],
+        "reply_to": NotRequired[Union[str, list[str], None]],
         "html": NotRequired[Union[str, None]],
         "text": NotRequired[Union[str, None]],
         "markdown": NotRequired[Union[str, None]],
@@ -1988,9 +1988,9 @@ ListInboxDraftsResponse = TypedDict(
 CreateInboxDraftParams = TypedDict(
     "CreateInboxDraftParams",
     {
-        "to": NotRequired[Any],
-        "cc": NotRequired[Any],
-        "bcc": NotRequired[Any],
+        "to": NotRequired[Union[str, list[str], None]],
+        "cc": NotRequired[Union[str, list[str], None]],
+        "bcc": NotRequired[Union[str, list[str], None]],
         "subject": NotRequired[Union[str, None]],
         "html": NotRequired[Union[str, None]],
         "text": NotRequired[Union[str, None]],
@@ -2003,9 +2003,9 @@ CreateInboxDraftParams = TypedDict(
 UpdateInboxDraftParams = TypedDict(
     "UpdateInboxDraftParams",
     {
-        "to": NotRequired[Any],
-        "cc": NotRequired[Any],
-        "bcc": NotRequired[Any],
+        "to": NotRequired[Union[str, list[str], None]],
+        "cc": NotRequired[Union[str, list[str], None]],
+        "bcc": NotRequired[Union[str, list[str], None]],
         "subject": NotRequired[Union[str, None]],
         "html": NotRequired[Union[str, None]],
         "text": NotRequired[Union[str, None]],
@@ -2058,7 +2058,7 @@ CreateContactPropertyParams = TypedDict(
     {
         "key": str,
         "type": Literal["string", "number"],
-        "fallback_value": NotRequired[Any],
+        "fallback_value": NotRequired[Union[str, float, None]],
     },
 )
 
@@ -2082,7 +2082,7 @@ GetContactPropertyResponse = TypedDict(
 UpdateContactPropertyParams = TypedDict(
     "UpdateContactPropertyParams",
     {
-        "fallback_value": Any,
+        "fallback_value": Union[str, float, None],
     },
 )
 

@@ -73,6 +73,8 @@ class Types:
         types = types if isinstance(types, list) else [types] if types else []
         nullable = "null" in types
         types = [t for t in types if t != "null"]
+        if nullable and not types and not any(k in schema for k in ("enum", "properties", "items", "additionalProperties")):
+            return "None"
         if "enum" in schema:
             values = [v for v in schema["enum"] if v is not None]
             nullable = nullable or None in schema["enum"]
@@ -267,7 +269,7 @@ def signature(op, with_body=True):
         args.append(f"params: {op['body']}" if op["body_required"] else f"params: {op['body']} | None = None")
     kw = []
     for name, py, t, required in op["query"]:
-        if not with_body and name in ("page", "before"):
+        if not with_body and name in ("page", "before", "latest"):
             continue
         kw.append(f"{py}: {t}" if required else f"{py}: {t} | None = None")
     if op["idempotent"]:
@@ -278,7 +280,7 @@ def signature(op, with_body=True):
 
 def call_args(op, with_body=True):
     path_args = ", ".join(f'"{p}": {ident(p)}' for p in op["path_params"])
-    query = ", ".join(f'"{name}": {py}' for name, py, _, _ in op["query"] if with_body or name not in ("page", "before"))
+    query = ", ".join(f'"{name}": {py}' for name, py, _, _ in op["query"] if with_body or name not in ("page", "before", "latest"))
     parts = [f'"{op["http"]}"', f'"{op["path"]}"', f"path_params={{{path_args}}}" if path_args else "path_params=None"]
     parts.append(f"query={{{query}}}" if query else "query=None")
     parts.append("body=params" if with_body and op["body"] else "body=None")

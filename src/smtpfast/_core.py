@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import email.utils
+import math
 import os
 import random
 import time
@@ -20,6 +21,8 @@ DEFAULT_BASE_URL = "https://smtpfa.st/api"
 RETRY_STATUS = {408, 429, 500, 502, 503, 504}
 SAFE_METHODS = {"GET", "HEAD", "PUT", "DELETE", "OPTIONS"}
 MAX_RETRY_AFTER = 60.0
+# Query parameters list_all sets or cannot combine with walking forward by `after`.
+PAGINATION_MANAGED = {"before", "page", "latest"}
 
 
 class RequestOptions(TypedDict, total=False):
@@ -56,11 +59,14 @@ class _Core:
         options = options or {}
         max_retries = options.get("max_retries", self.max_retries)
         timeout = options.get("timeout", self.timeout)
-        headers = {**self.headers, **(options.get("headers") or {})}
-        if idempotent:
-            key = idempotency_key or (str(uuid.uuid4()) if max_retries > 0 else None)
-            if key:
-                headers["Idempotency-Key"] = key
+        headers = httpx.Headers(self.headers)
+        headers.update(options.get("headers") or {})
+        if idempotency_key:
+            headers["Idempotency-Key"] = idempotency_key
+        elif idempotent and "Idempotency-Key" not in headers and max_retries > 0:
+            headers["Idempotency-Key"] = str(uuid.uuid4())
+        # A POST or PATCH is retried only when its operation dedupes on the key.
+        retryable = http_method in SAFE_METHODS or (idempotent and bool(headers.get("Idempotency-Key")))
         params = {k: _query_value(v) for k, v in (query or {}).items() if v is not None}
         request = httpx.Request(
             http_method,
@@ -70,7 +76,7 @@ class _Core:
             headers=headers,
             extensions={"timeout": httpx.Timeout(timeout).as_dict()},
         )
-        return request, max_retries, timeout
+        return request, max_retries, timeout, retryable
 
 
 class SyncCore(_Core):
@@ -80,8 +86,7 @@ class SyncCore(_Core):
         self._owns_http = http_client is None
 
     def request(self, http_method, route, *, path_params=None, query=None, body=None, idempotent=False, idempotency_key=None, options=None):
-        request, max_retries, timeout = self._build(http_method, route, path_params, query, body, idempotent, idempotency_key, options)
-        retryable = _retryable(request)
+        request, max_retries, timeout, retryable = self._build(http_method, route, path_params, query, body, idempotent, idempotency_key, options)
         attempt = 0
         while True:
             try:
@@ -107,7 +112,7 @@ class SyncCore(_Core):
             attempt += 1
 
     def paginate(self, http_method, route, *, path_params=None, query=None, body=None, options=None) -> Iterator[Any]:
-        query = dict(query or {})
+        query = {k: v for k, v in (query or {}).items() if k not in PAGINATION_MANAGED}
         while True:
             page = self.request(http_method, route, path_params=path_params, query=query, options=options) or {}
             items = page.get("data") or []
@@ -129,8 +134,7 @@ class AsyncCore(_Core):
         self._owns_http = http_client is None
 
     async def request(self, http_method, route, *, path_params=None, query=None, body=None, idempotent=False, idempotency_key=None, options=None):
-        request, max_retries, timeout = self._build(http_method, route, path_params, query, body, idempotent, idempotency_key, options)
-        retryable = _retryable(request)
+        request, max_retries, timeout, retryable = self._build(http_method, route, path_params, query, body, idempotent, idempotency_key, options)
         attempt = 0
         while True:
             try:
@@ -156,7 +160,7 @@ class AsyncCore(_Core):
             attempt += 1
 
     async def paginate(self, http_method, route, *, path_params=None, query=None, body=None, options=None) -> AsyncIterator[Any]:
-        query = dict(query or {})
+        query = {k: v for k, v in (query or {}).items() if k not in PAGINATION_MANAGED}
         while True:
             page = await self.request(http_method, route, path_params=path_params, query=query, options=options) or {}
             items = page.get("data") or []
@@ -194,10 +198,6 @@ def _query_value(v: Any) -> Any:
     return v
 
 
-def _retryable(request: httpx.Request) -> bool:
-    return request.method in SAFE_METHODS or "Idempotency-Key" in request.headers
-
-
 def _retry_delay(response: httpx.Response, attempt: int, retryable: bool) -> float | None:
     """Seconds to wait before retrying this response, or None for no retry."""
     if response.status_code not in RETRY_STATUS:
@@ -212,14 +212,17 @@ def _retry_delay(response: httpx.Response, attempt: int, retryable: bool) -> flo
         return after
     if not retryable:
         return None
-    return after if after is not None and after <= MAX_RETRY_AFTER else _backoff(attempt)
+    if after is not None:
+        return after if after <= MAX_RETRY_AFTER else None
+    return _backoff(attempt)
 
 
 def _retry_after(header: str | None) -> float | None:
     if not header:
         return None
     try:
-        return max(float(header), 0.0)
+        seconds = float(header)
+        return max(seconds, 0.0) if math.isfinite(seconds) else None
     except ValueError:
         try:
             parsed = email.utils.parsedate_to_datetime(header)
@@ -233,7 +236,7 @@ def _backoff(attempt: int) -> float:
 
 
 def _result(response: httpx.Response) -> Any:
-    if response.status_code >= 400:
+    if not 200 <= response.status_code < 300:
         raise APIError.from_response(response)
     if response.status_code == 204 or not response.content:
         return None
