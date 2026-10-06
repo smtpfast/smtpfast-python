@@ -1,0 +1,5 @@
+line-length = 140
+extend-exclude = ["src/smtpfast/types.py", "src/smtpfast/_resources.py"]
+
+[lint.per-file-ignores]
+"tests/*" = ["E731"]

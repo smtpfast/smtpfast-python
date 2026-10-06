@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "smtpfast"
+version = "0.1.0"
+description = "The official Python SDK for the SMTPfast API."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+dependencies = ["httpx>=0.27,<1", "typing_extensions>=4.7"]
+keywords = ["smtpfast", "email", "transactional-email", "api", "sdk"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Typing :: Typed",
+  "Topic :: Communications :: Email",
+]
+
+[project.urls]
+Homepage = "https://smtpfa.st"
+Documentation = "https://smtpfa.st/docs"
+Source = "https://github.com/smtpfast/smtpfast-python"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "mypy>=1.10", "jsonschema>=4.22", "ruff>=0.5"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/smtpfast"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+strict = true
+files = ["src/smtpfast"]
+
+[[tool.mypy.overrides]]
+module = ["smtpfast._resources", "smtpfast._core"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false

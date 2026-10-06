@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e '.[dev]'
+      # The generated code must be exactly what the spec in the repo produces.
+      - name: Generated code is up to date
+        run: python scripts/generate.py && git diff --exit-code
+      - run: ruff check src tests scripts
+      - run: mypy
+      - run: pytest -q
+
+  # Read-only calls to the real API, checked against the spec. Needs a key
+  # with email:read and domain:read in the SMTPFAST_API_KEY secret.
+  live:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install -e '.[dev]'
+      - run: pytest -q tests/test_live.py
+        env:
+          SMTPFAST_API_KEY: ${{ secrets.SMTPFAST_API_KEY }}
