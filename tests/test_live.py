@@ -47,8 +47,8 @@ def test_emails(client):
 def test_domains(client):
     domains = client.domains.list()
     check("listDomains", domains)
-    if domains:
-        check("getDomain", client.domains.get(domains[0]["id"]))
+    if domains["data"]:
+        check("getDomain", client.domains.get(domains["data"][0]["id"]))
 
 
 @pytest.mark.parametrize(
