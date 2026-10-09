@@ -502,6 +502,7 @@ EmailSummary = TypedDict(
 EmailList = TypedDict(
     "EmailList",
     {
+        "object": str,
         "data": list[EmailSummary],
         "page": NotRequired[int],
         "limit": int,
@@ -690,6 +691,7 @@ SegmentList = TypedDict(
     "SegmentList",
     {
         "object": str,
+        "has_more": bool,
         "data": list[SegmentSummary],
         "total": int,
         "segment_limit": int,
@@ -1128,6 +1130,8 @@ PendingSignup = TypedDict(
 PendingSignupList = TypedDict(
     "PendingSignupList",
     {
+        "object": str,
+        "has_more": bool,
         "data": list[PendingSignup],
         "total": int,
         "undeliverable_total": int,
@@ -1209,20 +1213,20 @@ AddDomainRequest = TypedDict(
 )
 
 
-# A domain as the list returns it. The field names are camelCase here, unlike the rest of the API.
+# A domain as the list returns it. GET /v1/domains/{id} has the DNS records and verification detail.
 DomainListItem = TypedDict(
     "DomainListItem",
     {
         "id": str,
         "domain": str,
         "status": str,
-        "dkimStatus": str,
-        "spfStatus": str,
-        "dmarcStatus": str,
-        "verifiedAt": Union[str, None],
-        "createdAt": str,
-        "receivingEnabled": bool,
-        "receivingStatus": str,
+        "dkim_status": str,
+        "spf_status": str,
+        "dmarc_status": str,
+        "verified_at": Union[str, None],
+        "created_at": str,
+        "receiving_enabled": bool,
+        "receiving_status": str,
     },
 )
 
@@ -1933,6 +1937,7 @@ ListInboxLabelsResponse = TypedDict(
     "ListInboxLabelsResponse",
     {
         "object": NotRequired[str],
+        "has_more": NotRequired[bool],
         "data": NotRequired[list[InboxLabel]],
     },
 )
@@ -2048,6 +2053,8 @@ SendInboxDraftResponse = TypedDict(
 ListContactPropertiesResponse = TypedDict(
     "ListContactPropertiesResponse",
     {
+        "object": str,
+        "has_more": bool,
         "data": list[ContactProperty],
     },
 )
@@ -2289,7 +2296,14 @@ PublishTemplateParams = TypedDict(
 )
 
 
-ListDomainsResponse: TypeAlias = list[DomainListItem]
+ListDomainsResponse = TypedDict(
+    "ListDomainsResponse",
+    {
+        "object": str,
+        "has_more": bool,
+        "data": list[DomainListItem],
+    },
+)
 
 
 UpdateDomainReceivingParams = TypedDict(
@@ -2378,7 +2392,14 @@ VerifyDomainResponse = TypedDict(
 )
 
 
-ListApiKeysResponse: TypeAlias = list[ApiKey]
+ListApiKeysResponse = TypedDict(
+    "ListApiKeysResponse",
+    {
+        "object": str,
+        "has_more": bool,
+        "data": list[ApiKey],
+    },
+)
 
 
 UpdateApiKeyParams = TypedDict(
@@ -2409,7 +2430,14 @@ RevokeApiKeyResponse = TypedDict(
 )
 
 
-ListWebhooksResponse: TypeAlias = list[Webhook]
+ListWebhooksResponse = TypedDict(
+    "ListWebhooksResponse",
+    {
+        "object": str,
+        "has_more": bool,
+        "data": list[Webhook],
+    },
+)
 
 
 TestWebhookResponse = TypedDict(
