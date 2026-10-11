@@ -18,9 +18,12 @@ email = client.emails.send({
     "to": ["customer@example.org"],
     "subject": "Your receipt",
     "html": "<p>Thanks for your order.</p>",
+    "category": "transactional",
 })
 print(email["id"])
 ```
+
+Email is marketing unless you set `category` to `transactional`. Marketing email gets a one-click unsubscribe header and is not sent to people who unsubscribed. Set `transactional` on receipts, password resets and account alerts so a marketing opt-out does not block them.
 
 Requests and responses are plain dicts, typed with `TypedDict`s from `smtpfast.types`, so your editor and type checker know every field. A new field or value from the API never breaks your code, because the SDK does not validate responses at runtime.
 
