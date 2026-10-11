@@ -2004,6 +2004,79 @@ Error = TypedDict(
 )
 
 
+LinkDomainError = TypedDict(
+    "LinkDomainError",
+    {
+        "error": str,
+        "code": NotRequired[Literal["invalid_hostname", "reserved_hostname", "no_matching_domain", "domain_not_verified", "link_domain_exists", "link_domains_unavailable", "link_domains_at_capacity", "plan_upgrade_required", "cloudflare_error"]],
+    },
+)
+
+
+CreateLinkDomainRequest = TypedDict(
+    "CreateLinkDomainRequest",
+    {
+        "hostname": str,
+    },
+)
+
+
+LinkDomainDnsRecord = TypedDict(
+    "LinkDomainDnsRecord",
+    {
+        "type": Literal["CNAME", "TXT"],
+        "name": str,
+        "value": str,
+        "ttl": str,
+        "purpose": str,
+        "required": bool,
+        "status": Literal["pending", "verified", "not_needed"],
+    },
+)
+
+
+# A custom hostname for open tracking, click tracking and unsubscribe links. While it is active, email whose From address is on the same registrable dom
+LinkDomain = TypedDict(
+    "LinkDomain",
+    {
+        "object": str,
+        "id": str,
+        "hostname": str,
+        "domain_id": Union[str, None],
+        "domain": Union[str, None],
+        "status": Literal["pending", "active", "failed"],
+        "ssl_status": Union[str, None],
+        "last_error": Union[str, None],
+        "dns_records": list[LinkDomainDnsRecord],
+        "verified_at": Union[str, None],
+        "last_checked_at": Union[str, None],
+        "created_at": str,
+    },
+)
+
+
+LinkDomainList = TypedDict(
+    "LinkDomainList",
+    {
+        "object": str,
+        "has_more": bool,
+        "data": list[LinkDomain],
+        "available": bool,
+        "included_in_plan": bool,
+    },
+)
+
+
+LinkDomainDeleted = TypedDict(
+    "LinkDomainDeleted",
+    {
+        "object": str,
+        "id": str,
+        "deleted": bool,
+    },
+)
+
+
 ListLogsResponse = TypedDict(
     "ListLogsResponse",
     {

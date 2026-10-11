@@ -760,6 +760,30 @@ class FormsResource(_SyncResource):
         return self._core.request("DELETE", "/v1/forms/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class LinkDomainsResource(_SyncResource):
+    """`client.link_domains`"""
+
+    def list(self, *, options: RequestOptions | None = None) -> LinkDomainList:
+        """List link domains. `GET /v1/link-domains`"""
+        return self._core.request("GET", "/v1/link-domains", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def create(self, params: CreateLinkDomainRequest, *, options: RequestOptions | None = None) -> LinkDomain:
+        """Add a link domain. `POST /v1/link-domains`"""
+        return self._core.request("POST", "/v1/link-domains", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def get(self, id: str, *, options: RequestOptions | None = None) -> LinkDomain:
+        """Get a link domain. `GET /v1/link-domains/{id}`"""
+        return self._core.request("GET", "/v1/link-domains/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def delete(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainDeleted:
+        """Delete a link domain. `DELETE /v1/link-domains/{id}`"""
+        return self._core.request("DELETE", "/v1/link-domains/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def refresh(self, id: str, *, options: RequestOptions | None = None) -> LinkDomain:
+        """Refresh a link domain's status. `POST /v1/link-domains/{id}/refresh`"""
+        return self._core.request("POST", "/v1/link-domains/{id}/refresh", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
 class AnalyticsResource(_SyncResource):
     """`client.analytics`"""
 
@@ -787,6 +811,7 @@ class Resource(_SyncResource):
         self.api_keys = ApiKeysResource(core)
         self.webhooks = WebhooksResource(core)
         self.forms = FormsResource(core)
+        self.link_domains = LinkDomainsResource(core)
         self.analytics = AnalyticsResource(core)
 
 
@@ -1542,6 +1567,30 @@ class AsyncFormsResource(_AsyncResource):
         return await self._core.request("DELETE", "/v1/forms/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class AsyncLinkDomainsResource(_AsyncResource):
+    """`client.link_domains`"""
+
+    async def list(self, *, options: RequestOptions | None = None) -> LinkDomainList:
+        """List link domains. `GET /v1/link-domains`"""
+        return await self._core.request("GET", "/v1/link-domains", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def create(self, params: CreateLinkDomainRequest, *, options: RequestOptions | None = None) -> LinkDomain:
+        """Add a link domain. `POST /v1/link-domains`"""
+        return await self._core.request("POST", "/v1/link-domains", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def get(self, id: str, *, options: RequestOptions | None = None) -> LinkDomain:
+        """Get a link domain. `GET /v1/link-domains/{id}`"""
+        return await self._core.request("GET", "/v1/link-domains/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def delete(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainDeleted:
+        """Delete a link domain. `DELETE /v1/link-domains/{id}`"""
+        return await self._core.request("DELETE", "/v1/link-domains/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def refresh(self, id: str, *, options: RequestOptions | None = None) -> LinkDomain:
+        """Refresh a link domain's status. `POST /v1/link-domains/{id}/refresh`"""
+        return await self._core.request("POST", "/v1/link-domains/{id}/refresh", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
 class AsyncAnalyticsResource(_AsyncResource):
     """`client.analytics`"""
 
@@ -1569,4 +1618,5 @@ class AsyncResource(_AsyncResource):
         self.api_keys = AsyncApiKeysResource(core)
         self.webhooks = AsyncWebhooksResource(core)
         self.forms = AsyncFormsResource(core)
+        self.link_domains = AsyncLinkDomainsResource(core)
         self.analytics = AsyncAnalyticsResource(core)
