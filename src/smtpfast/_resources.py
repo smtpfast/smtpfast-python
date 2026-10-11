@@ -83,7 +83,7 @@ class EmailsResource(_SyncResource):
         """Every item of list, fetching the following pages as you iterate."""
         return self._core.paginate("GET", "/v1/emails", path_params=None, query={"limit": limit, "status": status, "to": to, "after": after}, body=None, options=options)
 
-    def send(self, params: SendEmailRequest, *, idempotency_key: str | None = None, options: RequestOptions | None = None) -> Email:
+    def send(self, params: SendEmailRequest, *, idempotency_key: str | None = None, options: RequestOptions | None = None) -> SendEmailResponse:
         """Send an email. `POST /v1/emails`"""
         return self._core.request("POST", "/v1/emails", path_params=None, query=None, body=params, idempotent=True, idempotency_key=idempotency_key, options=options)  # type: ignore[no-any-return]
 
@@ -305,11 +305,11 @@ class ContactsResource(_SyncResource):
         super().__init__(core)
         self.segments = ContactsSegmentsResource(core)
 
-    def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, limit: int | None = None, options: RequestOptions | None = None) -> ContactList:
+    def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
         """List contacts. `GET /v1/contacts`"""
-        return self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "limit": limit}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
 
-    def create(self, params: CreateContactRequest, *, options: RequestOptions | None = None) -> ContactCreated:
+    def create(self, params: CreateContactParams, *, options: RequestOptions | None = None) -> CreateContactResponse:
         """Create a contact. `POST /v1/contacts`"""
         return self._core.request("POST", "/v1/contacts", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -317,7 +317,7 @@ class ContactsResource(_SyncResource):
         """Delete contacts in bulk. `DELETE /v1/contacts`"""
         return self._core.request("DELETE", "/v1/contacts", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    def export(self, *, format: Literal["csv", "json"] | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, options: RequestOptions | None = None) -> ContactList:
+    def export(self, *, format: Literal["csv", "json"] | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, options: RequestOptions | None = None) -> ContactExport:
         """Export contacts. `GET /v1/contacts/export`"""
         return self._core.request("GET", "/v1/contacts/export", path_params=None, query={"format": format if format is not None else "json", "status": status, "disposable": disposable}, body=None, options=options)  # type: ignore[no-any-return]
 
@@ -337,7 +337,7 @@ class ContactsResource(_SyncResource):
 class SegmentsContactsResource(_SyncResource):
     """`client.segments.contacts`"""
 
-    def list(self, id: str, *, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
+    def list(self, id: str, *, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> SegmentContactList:
         """List contacts in a segment. `GET /v1/segments/{id}/contacts`"""
         return self._core.request("GET", "/v1/segments/{id}/contacts", path_params={"id": id}, query={"limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
 
@@ -478,7 +478,7 @@ class BroadcastsResource(_SyncResource):
         """Create a broadcast draft. `POST /v1/broadcasts`"""
         return self._core.request("POST", "/v1/broadcasts", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    def get(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
+    def get(self, id: str, *, options: RequestOptions | None = None) -> BroadcastDetail:
         """Get broadcast details. `GET /v1/broadcasts/{id}`"""
         return self._core.request("GET", "/v1/broadcasts/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
@@ -502,7 +502,7 @@ class BroadcastsResource(_SyncResource):
         """Duplicate broadcast. `POST /v1/broadcasts/{id}/duplicate`"""
         return self._core.request("POST", "/v1/broadcasts/{id}/duplicate", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
-    def send(self, id: str, params: SendBroadcastParams | None = None, *, options: RequestOptions | None = None) -> Broadcast:
+    def send(self, id: str, params: SendBroadcastParams | None = None, *, options: RequestOptions | None = None) -> BroadcastSendResult:
         """Send or schedule a broadcast. `POST /v1/broadcasts/{id}/send`"""
         return self._core.request("POST", "/v1/broadcasts/{id}/send", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -510,7 +510,7 @@ class BroadcastsResource(_SyncResource):
         """Cancel a scheduled broadcast. `POST /v1/broadcasts/{id}/cancel`"""
         return self._core.request("POST", "/v1/broadcasts/{id}/cancel", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
-    def send_test(self, id: str, params: SendBroadcastTestParams, *, options: RequestOptions | None = None) -> Email:
+    def send_test(self, id: str, params: SendBroadcastTestParams, *, options: RequestOptions | None = None) -> SendBroadcastTestResponse:
         """Send a test broadcast email. `POST /v1/broadcasts/{id}/test`"""
         return self._core.request("POST", "/v1/broadcasts/{id}/test", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -865,7 +865,7 @@ class AsyncEmailsResource(_AsyncResource):
         """Every item of list, fetching the following pages as you iterate."""
         return self._core.paginate("GET", "/v1/emails", path_params=None, query={"limit": limit, "status": status, "to": to, "after": after}, body=None, options=options)
 
-    async def send(self, params: SendEmailRequest, *, idempotency_key: str | None = None, options: RequestOptions | None = None) -> Email:
+    async def send(self, params: SendEmailRequest, *, idempotency_key: str | None = None, options: RequestOptions | None = None) -> SendEmailResponse:
         """Send an email. `POST /v1/emails`"""
         return await self._core.request("POST", "/v1/emails", path_params=None, query=None, body=params, idempotent=True, idempotency_key=idempotency_key, options=options)  # type: ignore[no-any-return]
 
@@ -1087,11 +1087,11 @@ class AsyncContactsResource(_AsyncResource):
         super().__init__(core)
         self.segments = AsyncContactsSegmentsResource(core)
 
-    async def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, limit: int | None = None, options: RequestOptions | None = None) -> ContactList:
+    async def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
         """List contacts. `GET /v1/contacts`"""
-        return await self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "limit": limit}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
 
-    async def create(self, params: CreateContactRequest, *, options: RequestOptions | None = None) -> ContactCreated:
+    async def create(self, params: CreateContactParams, *, options: RequestOptions | None = None) -> CreateContactResponse:
         """Create a contact. `POST /v1/contacts`"""
         return await self._core.request("POST", "/v1/contacts", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -1099,7 +1099,7 @@ class AsyncContactsResource(_AsyncResource):
         """Delete contacts in bulk. `DELETE /v1/contacts`"""
         return await self._core.request("DELETE", "/v1/contacts", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    async def export(self, *, format: Literal["csv", "json"] | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, options: RequestOptions | None = None) -> ContactList:
+    async def export(self, *, format: Literal["csv", "json"] | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, options: RequestOptions | None = None) -> ContactExport:
         """Export contacts. `GET /v1/contacts/export`"""
         return await self._core.request("GET", "/v1/contacts/export", path_params=None, query={"format": format if format is not None else "json", "status": status, "disposable": disposable}, body=None, options=options)  # type: ignore[no-any-return]
 
@@ -1119,7 +1119,7 @@ class AsyncContactsResource(_AsyncResource):
 class AsyncSegmentsContactsResource(_AsyncResource):
     """`client.segments.contacts`"""
 
-    async def list(self, id: str, *, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
+    async def list(self, id: str, *, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> SegmentContactList:
         """List contacts in a segment. `GET /v1/segments/{id}/contacts`"""
         return await self._core.request("GET", "/v1/segments/{id}/contacts", path_params={"id": id}, query={"limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
 
@@ -1260,7 +1260,7 @@ class AsyncBroadcastsResource(_AsyncResource):
         """Create a broadcast draft. `POST /v1/broadcasts`"""
         return await self._core.request("POST", "/v1/broadcasts", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    async def get(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
+    async def get(self, id: str, *, options: RequestOptions | None = None) -> BroadcastDetail:
         """Get broadcast details. `GET /v1/broadcasts/{id}`"""
         return await self._core.request("GET", "/v1/broadcasts/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
@@ -1284,7 +1284,7 @@ class AsyncBroadcastsResource(_AsyncResource):
         """Duplicate broadcast. `POST /v1/broadcasts/{id}/duplicate`"""
         return await self._core.request("POST", "/v1/broadcasts/{id}/duplicate", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
-    async def send(self, id: str, params: SendBroadcastParams | None = None, *, options: RequestOptions | None = None) -> Broadcast:
+    async def send(self, id: str, params: SendBroadcastParams | None = None, *, options: RequestOptions | None = None) -> BroadcastSendResult:
         """Send or schedule a broadcast. `POST /v1/broadcasts/{id}/send`"""
         return await self._core.request("POST", "/v1/broadcasts/{id}/send", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -1292,7 +1292,7 @@ class AsyncBroadcastsResource(_AsyncResource):
         """Cancel a scheduled broadcast. `POST /v1/broadcasts/{id}/cancel`"""
         return await self._core.request("POST", "/v1/broadcasts/{id}/cancel", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
-    async def send_test(self, id: str, params: SendBroadcastTestParams, *, options: RequestOptions | None = None) -> Email:
+    async def send_test(self, id: str, params: SendBroadcastTestParams, *, options: RequestOptions | None = None) -> SendBroadcastTestResponse:
         """Send a test broadcast email. `POST /v1/broadcasts/{id}/test`"""
         return await self._core.request("POST", "/v1/broadcasts/{id}/test", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
