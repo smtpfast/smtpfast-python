@@ -464,6 +464,8 @@ SendEmailRequest = TypedDict(
         "headers": NotRequired[dict[str, str]],
         "scheduled_at": NotRequired[str],
         "category": NotRequired[Literal["transactional", "marketing"]],
+        "track_clicks": NotRequired[bool],
+        "track_opens": NotRequired[bool],
         "html": NotRequired[str],
         "text": NotRequired[str],
     },
