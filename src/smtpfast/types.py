@@ -1025,6 +1025,7 @@ Broadcast = TypedDict(
         "name": str,
         "audience": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
+        "segment_id": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "reply_to": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
@@ -1037,6 +1038,7 @@ Broadcast = TypedDict(
         "queued_at": NotRequired[Union[str, None]],
         "sent_at": NotRequired[Union[str, None]],
         "canceled_at": NotRequired[Union[str, None]],
+        "archived_at": NotRequired[Union[str, None]],
         "paused_at": NotRequired[Union[str, None]],
         "pause_reason": NotRequired[Union[str, None]],
         "fanout_completed_at": NotRequired[Union[str, None]],
@@ -1062,6 +1064,7 @@ BroadcastList = TypedDict(
         "page_size": NotRequired[int],
         "filtered_total": NotRequired[int],
         "total": NotRequired[int],
+        "archived_total": NotRequired[int],
         "status_counts": NotRequired[dict[str, int]],
     },
 )
@@ -1120,6 +1123,7 @@ BroadcastDetail = TypedDict(
         "name": str,
         "audience": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
+        "segment_id": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "reply_to": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
@@ -1132,6 +1136,7 @@ BroadcastDetail = TypedDict(
         "queued_at": NotRequired[Union[str, None]],
         "sent_at": NotRequired[Union[str, None]],
         "canceled_at": NotRequired[Union[str, None]],
+        "archived_at": NotRequired[Union[str, None]],
         "paused_at": NotRequired[Union[str, None]],
         "pause_reason": NotRequired[Union[str, None]],
         "fanout_completed_at": NotRequired[Union[str, None]],
@@ -1157,6 +1162,7 @@ BroadcastSendResult = TypedDict(
         "name": str,
         "audience": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
+        "segment_id": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "reply_to": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
@@ -1169,6 +1175,7 @@ BroadcastSendResult = TypedDict(
         "queued_at": NotRequired[Union[str, None]],
         "sent_at": NotRequired[Union[str, None]],
         "canceled_at": NotRequired[Union[str, None]],
+        "archived_at": NotRequired[Union[str, None]],
         "paused_at": NotRequired[Union[str, None]],
         "pause_reason": NotRequired[Union[str, None]],
         "fanout_completed_at": NotRequired[Union[str, None]],
@@ -1524,6 +1531,7 @@ DomainListItem = TypedDict(
     {
         "id": str,
         "domain": str,
+        "name": NotRequired[str],
         "status": str,
         "dkim_status": str,
         "spf_status": str,
@@ -1584,6 +1592,7 @@ Domain = TypedDict(
     {
         "id": str,
         "domain": str,
+        "name": NotRequired[str],
         "status": Literal["pending", "verifying", "verified", "failed"],
         "receiving": NotRequired[DomainReceiving],
         "verification_phase": NotRequired[Literal["verified", "dns_missing", "waiting_on_ses", "mail_from_pending", "failed"]],
@@ -2065,6 +2074,25 @@ LinkDomainList = TypedDict(
         "data": list[LinkDomain],
         "available": bool,
         "included_in_plan": bool,
+    },
+)
+
+
+LinkDomainConnectCheck = TypedDict(
+    "LinkDomainConnectCheck",
+    {
+        "available": bool,
+        "provider": Union[str, None],
+        "reason": Union[str, None],
+    },
+)
+
+
+LinkDomainConnectLink = TypedDict(
+    "LinkDomainConnectLink",
+    {
+        "url": str,
+        "provider": str,
     },
 )
 
