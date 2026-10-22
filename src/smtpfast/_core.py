@@ -188,6 +188,9 @@ class _AsyncResource:
 
 def _fill(route: str, values: Mapping[str, str] | None) -> str:
     for name, value in (values or {}).items():
+        # "", "." or ".." would become a dot-segment that resolves to another endpoint.
+        if str(value) in ("", ".", ".."):
+            raise SMTPfastError(f"Invalid path parameter {name}: {str(value)!r}")
         route = route.replace("{" + name + "}", quote(str(value), safe=""))
     return route
 

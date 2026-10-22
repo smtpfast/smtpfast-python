@@ -31,6 +31,14 @@ def test_path_params_are_encoded():
     assert rec.calls[0].url.raw_path.decode() == "/api/v1/inboxes/in%201/threads/th_2/emails/em%2F3/reply"
 
 
+def test_empty_or_dot_path_params_are_rejected():
+    client, rec = make()
+    for bad in ("", ".", ".."):
+        with pytest.raises(smtpfast.SMTPfastError):
+            client.emails.get(bad)
+    assert rec.calls == []
+
+
 def test_query_params_skip_none_and_format_bools():
     client, rec = make([ok({"data": [], "has_more": False})])
     client.contacts.list(limit=5, disposable=False)
