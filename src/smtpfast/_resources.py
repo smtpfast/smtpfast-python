@@ -470,9 +470,9 @@ class BroadcastsResource(_SyncResource):
         super().__init__(core)
         self.recipients = BroadcastsRecipientsResource(core)
 
-    def list(self, *, status: Literal["all", "draft", "scheduled", "queued", "sent", "paused", "canceled"] | None = None, q: str | None = None, options: RequestOptions | None = None) -> BroadcastList:
+    def list(self, *, status: Literal["all", "draft", "scheduled", "queued", "sent", "paused", "canceled"] | None = None, q: str | None = None, archived: Literal["false", "true", "all"] | None = None, options: RequestOptions | None = None) -> BroadcastList:
         """List broadcasts. `GET /v1/broadcasts`"""
-        return self._core.request("GET", "/v1/broadcasts", path_params=None, query={"status": status, "q": q}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/broadcasts", path_params=None, query={"status": status, "q": q, "archived": archived}, body=None, options=options)  # type: ignore[no-any-return]
 
     def create(self, params: CreateBroadcastRequest, *, options: RequestOptions | None = None) -> Broadcast:
         """Create a broadcast draft. `POST /v1/broadcasts`"""
@@ -509,6 +509,14 @@ class BroadcastsResource(_SyncResource):
     def cancel(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
         """Cancel a scheduled broadcast. `POST /v1/broadcasts/{id}/cancel`"""
         return self._core.request("POST", "/v1/broadcasts/{id}/cancel", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def archive(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
+        """Archive a broadcast. `POST /v1/broadcasts/{id}/archive`"""
+        return self._core.request("POST", "/v1/broadcasts/{id}/archive", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def unarchive(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
+        """Unarchive a broadcast. `POST /v1/broadcasts/{id}/unarchive`"""
+        return self._core.request("POST", "/v1/broadcasts/{id}/unarchive", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
     def send_test(self, id: str, params: SendBroadcastTestParams, *, options: RequestOptions | None = None) -> SendBroadcastTestResponse:
         """Send a test broadcast email. `POST /v1/broadcasts/{id}/test`"""
@@ -778,6 +786,14 @@ class LinkDomainsResource(_SyncResource):
     def delete(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainDeleted:
         """Delete a link domain. `DELETE /v1/link-domains/{id}`"""
         return self._core.request("DELETE", "/v1/link-domains/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def get_domain_connect(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainConnectCheck:
+        """Check one-click DNS setup for a link domain. `GET /v1/link-domains/{id}/domain-connect`"""
+        return self._core.request("GET", "/v1/link-domains/{id}/domain-connect", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def start_domain_connect(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainConnectLink:
+        """Set up a link domain's DNS in one click. `POST /v1/link-domains/{id}/domain-connect`"""
+        return self._core.request("POST", "/v1/link-domains/{id}/domain-connect", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
     def refresh(self, id: str, *, options: RequestOptions | None = None) -> LinkDomain:
         """Refresh a link domain's status. `POST /v1/link-domains/{id}/refresh`"""
@@ -1277,9 +1293,9 @@ class AsyncBroadcastsResource(_AsyncResource):
         super().__init__(core)
         self.recipients = AsyncBroadcastsRecipientsResource(core)
 
-    async def list(self, *, status: Literal["all", "draft", "scheduled", "queued", "sent", "paused", "canceled"] | None = None, q: str | None = None, options: RequestOptions | None = None) -> BroadcastList:
+    async def list(self, *, status: Literal["all", "draft", "scheduled", "queued", "sent", "paused", "canceled"] | None = None, q: str | None = None, archived: Literal["false", "true", "all"] | None = None, options: RequestOptions | None = None) -> BroadcastList:
         """List broadcasts. `GET /v1/broadcasts`"""
-        return await self._core.request("GET", "/v1/broadcasts", path_params=None, query={"status": status, "q": q}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/broadcasts", path_params=None, query={"status": status, "q": q, "archived": archived}, body=None, options=options)  # type: ignore[no-any-return]
 
     async def create(self, params: CreateBroadcastRequest, *, options: RequestOptions | None = None) -> Broadcast:
         """Create a broadcast draft. `POST /v1/broadcasts`"""
@@ -1316,6 +1332,14 @@ class AsyncBroadcastsResource(_AsyncResource):
     async def cancel(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
         """Cancel a scheduled broadcast. `POST /v1/broadcasts/{id}/cancel`"""
         return await self._core.request("POST", "/v1/broadcasts/{id}/cancel", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def archive(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
+        """Archive a broadcast. `POST /v1/broadcasts/{id}/archive`"""
+        return await self._core.request("POST", "/v1/broadcasts/{id}/archive", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def unarchive(self, id: str, *, options: RequestOptions | None = None) -> Broadcast:
+        """Unarchive a broadcast. `POST /v1/broadcasts/{id}/unarchive`"""
+        return await self._core.request("POST", "/v1/broadcasts/{id}/unarchive", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
     async def send_test(self, id: str, params: SendBroadcastTestParams, *, options: RequestOptions | None = None) -> SendBroadcastTestResponse:
         """Send a test broadcast email. `POST /v1/broadcasts/{id}/test`"""
@@ -1585,6 +1609,14 @@ class AsyncLinkDomainsResource(_AsyncResource):
     async def delete(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainDeleted:
         """Delete a link domain. `DELETE /v1/link-domains/{id}`"""
         return await self._core.request("DELETE", "/v1/link-domains/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def get_domain_connect(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainConnectCheck:
+        """Check one-click DNS setup for a link domain. `GET /v1/link-domains/{id}/domain-connect`"""
+        return await self._core.request("GET", "/v1/link-domains/{id}/domain-connect", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def start_domain_connect(self, id: str, *, options: RequestOptions | None = None) -> LinkDomainConnectLink:
+        """Set up a link domain's DNS in one click. `POST /v1/link-domains/{id}/domain-connect`"""
+        return await self._core.request("POST", "/v1/link-domains/{id}/domain-connect", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
     async def refresh(self, id: str, *, options: RequestOptions | None = None) -> LinkDomain:
         """Refresh a link domain's status. `POST /v1/link-domains/{id}/refresh`"""
