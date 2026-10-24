@@ -107,9 +107,9 @@ class EmailsResource(_SyncResource):
         """Create a share link for a sent email. `POST /v1/emails/{id}/share`"""
         return self._core.request("POST", "/v1/emails/{id}/share", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
+    def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, include: Literal["providers"] | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
         """Retrieve email metrics. `GET /v1/emails/metrics`"""
-        return self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id, "include": include}, body=None, options=options)  # type: ignore[no-any-return]
 
     def list_clicked_links(self, *, days: int | None = None, domain_id: str | None = None, url: str | None = None, options: RequestOptions | None = None) -> ListClickedLinksResponse:
         """List clicked links. `GET /v1/emails/clicked-links`"""
@@ -930,9 +930,9 @@ class AsyncEmailsResource(_AsyncResource):
         """Create a share link for a sent email. `POST /v1/emails/{id}/share`"""
         return await self._core.request("POST", "/v1/emails/{id}/share", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    async def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
+    async def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, include: Literal["providers"] | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
         """Retrieve email metrics. `GET /v1/emails/metrics`"""
-        return await self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id, "include": include}, body=None, options=options)  # type: ignore[no-any-return]
 
     async def list_clicked_links(self, *, days: int | None = None, domain_id: str | None = None, url: str | None = None, options: RequestOptions | None = None) -> ListClickedLinksResponse:
         """List clicked links. `GET /v1/emails/clicked-links`"""
