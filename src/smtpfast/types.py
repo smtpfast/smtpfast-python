@@ -1194,6 +1194,27 @@ BroadcastSendResult = TypedDict(
 )
 
 
+# Sent email to one mailbox provider. Each email counts once, by the domain of its first To address; a domain outside the consumer domains is classified
+MailboxProviderMetrics = TypedDict(
+    "MailboxProviderMetrics",
+    {
+        "provider": Literal["gmail", "outlook", "icloud", "yahoo", "proton", "other"],
+        "name": str,
+        "sent": int,
+        "share": float,
+        "delivered": int,
+        "bounced": int,
+        "complained": int,
+        "tracked_delivered": int,
+        "opened": int,
+        "delivery_rate": Union[float, None],
+        "open_rate": Union[float, None],
+        "bounce_rate": Union[float, None],
+        "complaint_rate": Union[float, None],
+    },
+)
+
+
 TemplateVariable = TypedDict(
     "TemplateVariable",
     {
@@ -2188,6 +2209,7 @@ GetEmailMetricsResponse = TypedDict(
         "granularity": Literal["hourly", "daily", "weekly", "monthly"],
         "totals": dict[str, float],
         "data": NotRequired[list[GetEmailMetricsResponseDataItem]],
+        "providers": NotRequired[list[MailboxProviderMetrics]],
     },
 )
 
