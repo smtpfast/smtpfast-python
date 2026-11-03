@@ -107,13 +107,33 @@ class EmailsResource(_SyncResource):
         """Create a share link for a sent email. `POST /v1/emails/{id}/share`"""
         return self._core.request("POST", "/v1/emails/{id}/share", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
+    def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, include: Literal["providers"] | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
         """Retrieve email metrics. `GET /v1/emails/metrics`"""
-        return self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id, "include": include}, body=None, options=options)  # type: ignore[no-any-return]
 
     def list_clicked_links(self, *, days: int | None = None, domain_id: str | None = None, url: str | None = None, options: RequestOptions | None = None) -> ListClickedLinksResponse:
         """List clicked links. `GET /v1/emails/clicked-links`"""
         return self._core.request("GET", "/v1/emails/clicked-links", path_params=None, query={"days": days, "domain_id": domain_id, "url": url}, body=None, options=options)  # type: ignore[no-any-return]
+
+
+class InboxesThreadsNotesResource(_SyncResource):
+    """`client.inboxes.threads.notes`"""
+
+    def list(self, inbox_id: str, thread_id: str, *, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListInboxThreadNotesResponse:
+        """List thread notes. `GET /v1/inboxes/{inbox_id}/threads/{thread_id}/notes`"""
+        return self._core.request("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"limit": limit, "after": after, "before": before}, body=None, options=options)  # type: ignore[no-any-return]
+
+    def list_all(self, inbox_id: str, thread_id: str, *, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> Iterator[InboxThreadNote]:
+        """Every item of list, fetching the following pages as you iterate."""
+        return self._core.paginate("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"limit": limit, "after": after}, body=None, options=options)
+
+    def create(self, inbox_id: str, thread_id: str, params: CreateInboxThreadNoteParams, *, options: RequestOptions | None = None) -> InboxThreadNote:
+        """Add a thread note. `POST /v1/inboxes/{inbox_id}/threads/{thread_id}/notes`"""
+        return self._core.request("POST", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def delete(self, inbox_id: str, thread_id: str, note_id: str, *, options: RequestOptions | None = None) -> DeleteInboxThreadNoteResponse:
+        """Delete a thread note. `DELETE /v1/inboxes/{inbox_id}/threads/{thread_id}/notes/{note_id}`"""
+        return self._core.request("DELETE", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes/{note_id}", path_params={"inbox_id": inbox_id, "thread_id": thread_id, "note_id": note_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
 class InboxesThreadsEmailsResource(_SyncResource):
@@ -145,6 +165,7 @@ class InboxesThreadsResource(_SyncResource):
 
     def __init__(self, core: Any) -> None:
         super().__init__(core)
+        self.notes = InboxesThreadsNotesResource(core)
         self.emails = InboxesThreadsEmailsResource(core)
 
     def list(self, inbox_id: str, *, folder: Literal["inbox", "archive", "spam", "sent", "trash"] | None = None, query: str | None = None, label: builtins.list[str] | None = None, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListInboxThreadsResponse:
@@ -192,8 +213,20 @@ class InboxesLabelsResource(_SyncResource):
         return self._core.request("DELETE", "/v1/inboxes/{inbox_id}/labels/{label_id}", path_params={"inbox_id": inbox_id, "label_id": label_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class InboxesDraftsAttachmentsResource(_SyncResource):
+    """`client.inboxes.drafts.attachments`"""
+
+    def get(self, inbox_id: str, draft_id: str, attachment_id: str, *, options: RequestOptions | None = None) -> InboxDraftAttachmentDownload:
+        """Retrieve a draft attachment. `GET /v1/inboxes/{inbox_id}/drafts/{draft_id}/attachments/{attachment_id}`"""
+        return self._core.request("GET", "/v1/inboxes/{inbox_id}/drafts/{draft_id}/attachments/{attachment_id}", path_params={"inbox_id": inbox_id, "draft_id": draft_id, "attachment_id": attachment_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
 class InboxesDraftsResource(_SyncResource):
     """`client.inboxes.drafts`"""
+
+    def __init__(self, core: Any) -> None:
+        super().__init__(core)
+        self.attachments = InboxesDraftsAttachmentsResource(core)
 
     def list(self, inbox_id: str, *, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListInboxDraftsResponse:
         """List drafts. `GET /v1/inboxes/{inbox_id}/drafts`"""
@@ -381,6 +414,22 @@ class AccountResource(_SyncResource):
         """Usage against the plan. `GET /v1/usage`"""
         return self._core.request("GET", "/v1/usage", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
+    def activation(self, *, options: RequestOptions | None = None) -> GetAccountActivationResponse:
+        """Whether the account is active. `GET /v1/account/activation`"""
+        return self._core.request("GET", "/v1/account/activation", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def request_free_trial(self, params: RequestFreeTrialParams, *, options: RequestOptions | None = None) -> RequestFreeTrialResponse:
+        """Ask for the free plan. `POST /v1/account/activation/free-trial`"""
+        return self._core.request("POST", "/v1/account/activation/free-trial", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def redeem_invite(self, params: RedeemActivationInviteParams, *, options: RequestOptions | None = None) -> RedeemActivationInviteResponse:
+        """Activate with an invite code. `POST /v1/account/activation/invite`"""
+        return self._core.request("POST", "/v1/account/activation/invite", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def activation_checkout(self, params: CreateActivationCheckoutParams, *, options: RequestOptions | None = None) -> CreateActivationCheckoutResponse:
+        """Activate with a paid plan. `POST /v1/account/activation/checkout`"""
+        return self._core.request("POST", "/v1/account/activation/checkout", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
 
 class TeamMembersResource(_SyncResource):
     """`client.team.members`"""
@@ -425,6 +474,48 @@ class TeamResource(_SyncResource):
         super().__init__(core)
         self.members = TeamMembersResource(core)
         self.invites = TeamInvitesResource(core)
+
+
+class BillingCheckoutResource(_SyncResource):
+    """`client.billing.checkout`"""
+
+    def create(self, params: CreateBillingCheckoutParams, *, options: RequestOptions | None = None) -> BillingCheckout:
+        """Get a link to start or change a plan. `POST /v1/billing/checkout`"""
+        return self._core.request("POST", "/v1/billing/checkout", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+
+class BillingPortalResource(_SyncResource):
+    """`client.billing.portal`"""
+
+    def create(self, params: CreateBillingPortalSessionParams | None = None, *, options: RequestOptions | None = None) -> BillingPortalSession:
+        """Get a link to the billing portal. `POST /v1/billing/portal`"""
+        return self._core.request("POST", "/v1/billing/portal", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+
+class BillingInvoicesResource(_SyncResource):
+    """`client.billing.invoices`"""
+
+    def list(self, *, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListBillingInvoicesResponse:
+        """List invoices. `GET /v1/billing/invoices`"""
+        return self._core.request("GET", "/v1/billing/invoices", path_params=None, query={"limit": limit, "after": after, "before": before}, body=None, options=options)  # type: ignore[no-any-return]
+
+    def list_all(self, *, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> Iterator[Invoice]:
+        """Every item of list, fetching the following pages as you iterate."""
+        return self._core.paginate("GET", "/v1/billing/invoices", path_params=None, query={"limit": limit, "after": after}, body=None, options=options)
+
+
+class BillingResource(_SyncResource):
+    """`client.billing`"""
+
+    def __init__(self, core: Any) -> None:
+        super().__init__(core)
+        self.checkout = BillingCheckoutResource(core)
+        self.portal = BillingPortalResource(core)
+        self.invoices = BillingInvoicesResource(core)
+
+    def get(self, *, options: RequestOptions | None = None) -> Billing:
+        """Get the plan and usage. `GET /v1/billing`"""
+        return self._core.request("GET", "/v1/billing", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
 class SuppressionsResource(_SyncResource):
@@ -621,6 +712,26 @@ class ApiKeysResource(_SyncResource):
     def revoke(self, id: str, *, options: RequestOptions | None = None) -> RevokeApiKeyResponse:
         """Revoke API key. `DELETE /v1/api-keys/{id}`"""
         return self._core.request("DELETE", "/v1/api-keys/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
+class CliResource(_SyncResource):
+    """`client.cli`"""
+
+    def create_device_code(self, params: CreateCliDeviceCodeParams | None = None, *, options: RequestOptions | None = None) -> CreateCliDeviceCodeResponse:
+        """Start a CLI login. `POST /v1/cli/device`"""
+        return self._core.request("POST", "/v1/cli/device", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def exchange_device_code(self, params: ExchangeCliDeviceCodeParams, *, options: RequestOptions | None = None) -> ExchangeCliDeviceCodeResponse:
+        """Collect the CLI login key. `POST /v1/cli/token`"""
+        return self._core.request("POST", "/v1/cli/token", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def start_signup(self, params: StartCliSignupParams, *, options: RequestOptions | None = None) -> StartCliSignupResponse:
+        """Start a signup from the CLI. `POST /v1/cli/signup`"""
+        return self._core.request("POST", "/v1/cli/signup", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def verify_signup(self, params: VerifyCliSignupParams, *, options: RequestOptions | None = None) -> VerifyCliSignupResponse:
+        """Finish a CLI signup with the emailed code. `POST /v1/cli/signup/verify`"""
+        return self._core.request("POST", "/v1/cli/signup/verify", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
 
 class WebhooksDeliveriesResource(_SyncResource):
@@ -820,11 +931,13 @@ class Resource(_SyncResource):
         self.segments = SegmentsResource(core)
         self.account = AccountResource(core)
         self.team = TeamResource(core)
+        self.billing = BillingResource(core)
         self.suppressions = SuppressionsResource(core)
         self.broadcasts = BroadcastsResource(core)
         self.templates = TemplatesResource(core)
         self.domains = DomainsResource(core)
         self.api_keys = ApiKeysResource(core)
+        self.cli = CliResource(core)
         self.webhooks = WebhooksResource(core)
         self.forms = FormsResource(core)
         self.link_domains = LinkDomainsResource(core)
@@ -930,13 +1043,33 @@ class AsyncEmailsResource(_AsyncResource):
         """Create a share link for a sent email. `POST /v1/emails/{id}/share`"""
         return await self._core.request("POST", "/v1/emails/{id}/share", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    async def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
+    async def get_metrics(self, *, start_date: str | None = None, end_date: str | None = None, timezone: str | None = None, granularity: Literal["hourly", "daily", "weekly", "monthly"] | None = None, metrics: str | None = None, dimensions: str | None = None, domain_id: str | None = None, email_id: str | None = None, broadcast_id: str | None = None, include: Literal["providers"] | None = None, options: RequestOptions | None = None) -> GetEmailMetricsResponse:
         """Retrieve email metrics. `GET /v1/emails/metrics`"""
-        return await self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/emails/metrics", path_params=None, query={"start_date": start_date, "end_date": end_date, "timezone": timezone, "granularity": granularity, "metrics": metrics, "dimensions": dimensions, "domain_id": domain_id, "email_id": email_id, "broadcast_id": broadcast_id, "include": include}, body=None, options=options)  # type: ignore[no-any-return]
 
     async def list_clicked_links(self, *, days: int | None = None, domain_id: str | None = None, url: str | None = None, options: RequestOptions | None = None) -> ListClickedLinksResponse:
         """List clicked links. `GET /v1/emails/clicked-links`"""
         return await self._core.request("GET", "/v1/emails/clicked-links", path_params=None, query={"days": days, "domain_id": domain_id, "url": url}, body=None, options=options)  # type: ignore[no-any-return]
+
+
+class AsyncInboxesThreadsNotesResource(_AsyncResource):
+    """`client.inboxes.threads.notes`"""
+
+    async def list(self, inbox_id: str, thread_id: str, *, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListInboxThreadNotesResponse:
+        """List thread notes. `GET /v1/inboxes/{inbox_id}/threads/{thread_id}/notes`"""
+        return await self._core.request("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"limit": limit, "after": after, "before": before}, body=None, options=options)  # type: ignore[no-any-return]
+
+    def list_all(self, inbox_id: str, thread_id: str, *, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> AsyncIterator[InboxThreadNote]:
+        """Every item of list, fetching the following pages as you iterate."""
+        return self._core.paginate("GET", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query={"limit": limit, "after": after}, body=None, options=options)
+
+    async def create(self, inbox_id: str, thread_id: str, params: CreateInboxThreadNoteParams, *, options: RequestOptions | None = None) -> InboxThreadNote:
+        """Add a thread note. `POST /v1/inboxes/{inbox_id}/threads/{thread_id}/notes`"""
+        return await self._core.request("POST", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes", path_params={"inbox_id": inbox_id, "thread_id": thread_id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def delete(self, inbox_id: str, thread_id: str, note_id: str, *, options: RequestOptions | None = None) -> DeleteInboxThreadNoteResponse:
+        """Delete a thread note. `DELETE /v1/inboxes/{inbox_id}/threads/{thread_id}/notes/{note_id}`"""
+        return await self._core.request("DELETE", "/v1/inboxes/{inbox_id}/threads/{thread_id}/notes/{note_id}", path_params={"inbox_id": inbox_id, "thread_id": thread_id, "note_id": note_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
 class AsyncInboxesThreadsEmailsResource(_AsyncResource):
@@ -968,6 +1101,7 @@ class AsyncInboxesThreadsResource(_AsyncResource):
 
     def __init__(self, core: Any) -> None:
         super().__init__(core)
+        self.notes = AsyncInboxesThreadsNotesResource(core)
         self.emails = AsyncInboxesThreadsEmailsResource(core)
 
     async def list(self, inbox_id: str, *, folder: Literal["inbox", "archive", "spam", "sent", "trash"] | None = None, query: str | None = None, label: builtins.list[str] | None = None, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListInboxThreadsResponse:
@@ -1015,8 +1149,20 @@ class AsyncInboxesLabelsResource(_AsyncResource):
         return await self._core.request("DELETE", "/v1/inboxes/{inbox_id}/labels/{label_id}", path_params={"inbox_id": inbox_id, "label_id": label_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class AsyncInboxesDraftsAttachmentsResource(_AsyncResource):
+    """`client.inboxes.drafts.attachments`"""
+
+    async def get(self, inbox_id: str, draft_id: str, attachment_id: str, *, options: RequestOptions | None = None) -> InboxDraftAttachmentDownload:
+        """Retrieve a draft attachment. `GET /v1/inboxes/{inbox_id}/drafts/{draft_id}/attachments/{attachment_id}`"""
+        return await self._core.request("GET", "/v1/inboxes/{inbox_id}/drafts/{draft_id}/attachments/{attachment_id}", path_params={"inbox_id": inbox_id, "draft_id": draft_id, "attachment_id": attachment_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
 class AsyncInboxesDraftsResource(_AsyncResource):
     """`client.inboxes.drafts`"""
+
+    def __init__(self, core: Any) -> None:
+        super().__init__(core)
+        self.attachments = AsyncInboxesDraftsAttachmentsResource(core)
 
     async def list(self, inbox_id: str, *, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListInboxDraftsResponse:
         """List drafts. `GET /v1/inboxes/{inbox_id}/drafts`"""
@@ -1204,6 +1350,22 @@ class AsyncAccountResource(_AsyncResource):
         """Usage against the plan. `GET /v1/usage`"""
         return await self._core.request("GET", "/v1/usage", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
+    async def activation(self, *, options: RequestOptions | None = None) -> GetAccountActivationResponse:
+        """Whether the account is active. `GET /v1/account/activation`"""
+        return await self._core.request("GET", "/v1/account/activation", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def request_free_trial(self, params: RequestFreeTrialParams, *, options: RequestOptions | None = None) -> RequestFreeTrialResponse:
+        """Ask for the free plan. `POST /v1/account/activation/free-trial`"""
+        return await self._core.request("POST", "/v1/account/activation/free-trial", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def redeem_invite(self, params: RedeemActivationInviteParams, *, options: RequestOptions | None = None) -> RedeemActivationInviteResponse:
+        """Activate with an invite code. `POST /v1/account/activation/invite`"""
+        return await self._core.request("POST", "/v1/account/activation/invite", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def activation_checkout(self, params: CreateActivationCheckoutParams, *, options: RequestOptions | None = None) -> CreateActivationCheckoutResponse:
+        """Activate with a paid plan. `POST /v1/account/activation/checkout`"""
+        return await self._core.request("POST", "/v1/account/activation/checkout", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
 
 class AsyncTeamMembersResource(_AsyncResource):
     """`client.team.members`"""
@@ -1248,6 +1410,48 @@ class AsyncTeamResource(_AsyncResource):
         super().__init__(core)
         self.members = AsyncTeamMembersResource(core)
         self.invites = AsyncTeamInvitesResource(core)
+
+
+class AsyncBillingCheckoutResource(_AsyncResource):
+    """`client.billing.checkout`"""
+
+    async def create(self, params: CreateBillingCheckoutParams, *, options: RequestOptions | None = None) -> BillingCheckout:
+        """Get a link to start or change a plan. `POST /v1/billing/checkout`"""
+        return await self._core.request("POST", "/v1/billing/checkout", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+
+class AsyncBillingPortalResource(_AsyncResource):
+    """`client.billing.portal`"""
+
+    async def create(self, params: CreateBillingPortalSessionParams | None = None, *, options: RequestOptions | None = None) -> BillingPortalSession:
+        """Get a link to the billing portal. `POST /v1/billing/portal`"""
+        return await self._core.request("POST", "/v1/billing/portal", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+
+class AsyncBillingInvoicesResource(_AsyncResource):
+    """`client.billing.invoices`"""
+
+    async def list(self, *, limit: int | None = None, after: str | None = None, before: str | None = None, options: RequestOptions | None = None) -> ListBillingInvoicesResponse:
+        """List invoices. `GET /v1/billing/invoices`"""
+        return await self._core.request("GET", "/v1/billing/invoices", path_params=None, query={"limit": limit, "after": after, "before": before}, body=None, options=options)  # type: ignore[no-any-return]
+
+    def list_all(self, *, limit: int | None = None, after: str | None = None, options: RequestOptions | None = None) -> AsyncIterator[Invoice]:
+        """Every item of list, fetching the following pages as you iterate."""
+        return self._core.paginate("GET", "/v1/billing/invoices", path_params=None, query={"limit": limit, "after": after}, body=None, options=options)
+
+
+class AsyncBillingResource(_AsyncResource):
+    """`client.billing`"""
+
+    def __init__(self, core: Any) -> None:
+        super().__init__(core)
+        self.checkout = AsyncBillingCheckoutResource(core)
+        self.portal = AsyncBillingPortalResource(core)
+        self.invoices = AsyncBillingInvoicesResource(core)
+
+    async def get(self, *, options: RequestOptions | None = None) -> Billing:
+        """Get the plan and usage. `GET /v1/billing`"""
+        return await self._core.request("GET", "/v1/billing", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
 class AsyncSuppressionsResource(_AsyncResource):
@@ -1444,6 +1648,26 @@ class AsyncApiKeysResource(_AsyncResource):
     async def revoke(self, id: str, *, options: RequestOptions | None = None) -> RevokeApiKeyResponse:
         """Revoke API key. `DELETE /v1/api-keys/{id}`"""
         return await self._core.request("DELETE", "/v1/api-keys/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
+class AsyncCliResource(_AsyncResource):
+    """`client.cli`"""
+
+    async def create_device_code(self, params: CreateCliDeviceCodeParams | None = None, *, options: RequestOptions | None = None) -> CreateCliDeviceCodeResponse:
+        """Start a CLI login. `POST /v1/cli/device`"""
+        return await self._core.request("POST", "/v1/cli/device", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def exchange_device_code(self, params: ExchangeCliDeviceCodeParams, *, options: RequestOptions | None = None) -> ExchangeCliDeviceCodeResponse:
+        """Collect the CLI login key. `POST /v1/cli/token`"""
+        return await self._core.request("POST", "/v1/cli/token", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def start_signup(self, params: StartCliSignupParams, *, options: RequestOptions | None = None) -> StartCliSignupResponse:
+        """Start a signup from the CLI. `POST /v1/cli/signup`"""
+        return await self._core.request("POST", "/v1/cli/signup", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def verify_signup(self, params: VerifyCliSignupParams, *, options: RequestOptions | None = None) -> VerifyCliSignupResponse:
+        """Finish a CLI signup with the emailed code. `POST /v1/cli/signup/verify`"""
+        return await self._core.request("POST", "/v1/cli/signup/verify", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
 
 class AsyncWebhooksDeliveriesResource(_AsyncResource):
@@ -1643,11 +1867,13 @@ class AsyncResource(_AsyncResource):
         self.segments = AsyncSegmentsResource(core)
         self.account = AsyncAccountResource(core)
         self.team = AsyncTeamResource(core)
+        self.billing = AsyncBillingResource(core)
         self.suppressions = AsyncSuppressionsResource(core)
         self.broadcasts = AsyncBroadcastsResource(core)
         self.templates = AsyncTemplatesResource(core)
         self.domains = AsyncDomainsResource(core)
         self.api_keys = AsyncApiKeysResource(core)
+        self.cli = AsyncCliResource(core)
         self.webhooks = AsyncWebhooksResource(core)
         self.forms = AsyncFormsResource(core)
         self.link_domains = AsyncLinkDomainsResource(core)

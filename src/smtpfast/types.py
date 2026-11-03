@@ -161,6 +161,22 @@ InboxThread = TypedDict(
         "read": NotRequired[bool],
         "received_at": NotRequired[str],
         "delete_after": NotRequired[Union[str, None]],
+        "assignee_email": NotRequired[Union[str, None]],
+    },
+)
+
+
+# An internal note on a thread. Never sent to anyone. Not in Resend.
+InboxThreadNote = TypedDict(
+    "InboxThreadNote",
+    {
+        "object": NotRequired[str],
+        "id": NotRequired[str],
+        "thread_id": NotRequired[str],
+        "text": NotRequired[str],
+        "author_email": NotRequired[Union[str, None]],
+        "created_via": NotRequired[Literal["api", "dashboard"]],
+        "created_at": NotRequired[str],
     },
 )
 
@@ -183,6 +199,7 @@ InboxThreadListItem = TypedDict(
         "folder": NotRequired[str],
         "unread_count": NotRequired[int],
         "snippet": NotRequired[Union[str, None]],
+        "assignee_email": NotRequired[Union[str, None]],
     },
 )
 
@@ -285,6 +302,17 @@ InboxSentEmail = TypedDict(
 )
 
 
+InboxDraftAttachment = TypedDict(
+    "InboxDraftAttachment",
+    {
+        "id": NotRequired[str],
+        "filename": NotRequired[str],
+        "size": NotRequired[int],
+        "content_type": NotRequired[Union[str, None]],
+    },
+)
+
+
 InboxDraft = TypedDict(
     "InboxDraft",
     {
@@ -297,6 +325,7 @@ InboxDraft = TypedDict(
         "subject": NotRequired[Union[str, None]],
         "html": NotRequired[Union[str, None]],
         "text": NotRequired[Union[str, None]],
+        "attachments": NotRequired[list[InboxDraftAttachment]],
         "thread_id": NotRequired[Union[str, None]],
         "reply_to_email_id": NotRequired[Union[str, None]],
         "email_id": NotRequired[Union[str, None]],
@@ -306,6 +335,19 @@ InboxDraft = TypedDict(
         "sent_at": NotRequired[Union[str, None]],
         "revision": NotRequired[int],
         "thread_subject": NotRequired[Union[str, None]],
+    },
+)
+
+
+InboxDraftAttachmentDownload = TypedDict(
+    "InboxDraftAttachmentDownload",
+    {
+        "id": NotRequired[str],
+        "filename": NotRequired[str],
+        "size": NotRequired[int],
+        "content_type": NotRequired[Union[str, None]],
+        "download_url": NotRequired[str],
+        "expires_at": NotRequired[str],
     },
 )
 
@@ -1194,6 +1236,27 @@ BroadcastSendResult = TypedDict(
 )
 
 
+# Sent email to one mailbox provider. Each email counts once, by the domain of its first To address; a domain outside the consumer domains is classified
+MailboxProviderMetrics = TypedDict(
+    "MailboxProviderMetrics",
+    {
+        "provider": Literal["gmail", "outlook", "icloud", "yahoo", "proton", "other"],
+        "name": str,
+        "sent": int,
+        "share": float,
+        "delivered": int,
+        "bounced": int,
+        "complained": int,
+        "tracked_delivered": int,
+        "opened": int,
+        "delivery_rate": Union[float, None],
+        "open_rate": Union[float, None],
+        "bounce_rate": Union[float, None],
+        "complaint_rate": Union[float, None],
+    },
+)
+
+
 TemplateVariable = TypedDict(
     "TemplateVariable",
     {
@@ -1686,7 +1749,7 @@ CreateWebhookRequest = TypedDict(
     "CreateWebhookRequest",
     {
         "url": str,
-        "events": list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed"]],
+        "events": list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed", "inbox.email.received", "inbox.thread.assigned", "inbox.thread.unassigned"]],
         "format": NotRequired[Literal["standard", "discord", "slack"]],
     },
 )
@@ -1696,7 +1759,7 @@ UpdateWebhookRequest = TypedDict(
     "UpdateWebhookRequest",
     {
         "url": NotRequired[str],
-        "events": NotRequired[list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed"]]],
+        "events": NotRequired[list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed", "inbox.email.received", "inbox.thread.assigned", "inbox.thread.unassigned"]]],
         "active": NotRequired[bool],
         "format": NotRequired[Literal["standard", "discord", "slack"]],
     },
@@ -1767,7 +1830,7 @@ Webhook = TypedDict(
     {
         "id": str,
         "url": str,
-        "events": list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed"]],
+        "events": list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed", "inbox.email.received", "inbox.thread.assigned", "inbox.thread.unassigned"]],
         "active": bool,
         "format": NotRequired[Literal["standard", "discord", "slack"]],
         "secret": NotRequired[str],
@@ -1783,7 +1846,7 @@ WebhookUpdated = TypedDict(
     {
         "id": str,
         "url": str,
-        "events": list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed"]],
+        "events": list[Literal["email.scheduled", "email.sent", "email.delivered", "email.delivery_delayed", "email.bounced", "email.complained", "email.opened", "email.clicked", "email.failed", "email.suppressed", "email.unsubscribed", "email.received", "domain.created", "domain.updated", "domain.deleted", "contact.created", "contact.updated", "contact.deleted", "contact.subscribed", "inbox.email.received", "inbox.thread.assigned", "inbox.thread.unassigned"]],
         "format": Literal["standard", "discord", "slack"],
         "active": bool,
     },
@@ -2107,6 +2170,194 @@ LinkDomainDeleted = TypedDict(
 )
 
 
+# What the plan allows
+BillingNextTierLimits = TypedDict(
+    "BillingNextTierLimits",
+    {
+        "emails": int,
+        "contacts": int,
+        "segments": int,
+        "broadcasts": int,
+        "domains": Union[int, None],
+        "members": int,
+    },
+)
+
+
+# In the smallest currency unit (cents)
+BillingNextTierPrice = TypedDict(
+    "BillingNextTierPrice",
+    {
+        "monthly": int,
+        "yearly": int,
+        "currency": str,
+    },
+)
+
+
+# The plan above this one, with its price and limits; null on the top plan
+BillingNextTier = TypedDict(
+    "BillingNextTier",
+    {
+        "plan": str,
+        "name": str,
+        "price": BillingNextTierPrice,
+        "limits": BillingNextTierLimits,
+    },
+)
+
+
+# The last renewal was not paid. past_due: Stripe is still retrying. unpaid: it stopped.
+BillingPaymentIssue = TypedDict(
+    "BillingPaymentIssue",
+    {
+        "status": Literal["past_due", "unpaid"],
+        "pay_url": Union[str, None],
+    },
+)
+
+
+# A smaller plan waiting for the end of the paid period
+BillingScheduledChange = TypedDict(
+    "BillingScheduledChange",
+    {
+        "plan": str,
+        "interval": Union[Literal["monthly", "yearly"], None],
+        "effective_at": str,
+    },
+)
+
+
+BillingUsageBroadcasts = TypedDict(
+    "BillingUsageBroadcasts",
+    {
+        "used": int,
+        "limit": int,
+    },
+)
+
+
+BillingUsageContacts = TypedDict(
+    "BillingUsageContacts",
+    {
+        "used": int,
+        "limit": int,
+    },
+)
+
+
+BillingUsageDomains = TypedDict(
+    "BillingUsageDomains",
+    {
+        "used": int,
+        "limit": Union[int, None],
+    },
+)
+
+
+BillingUsageEmails = TypedDict(
+    "BillingUsageEmails",
+    {
+        "used": int,
+        "limit": int,
+        "credits": int,
+    },
+)
+
+
+# Members plus pending invitations, as the seat limit counts them
+BillingUsageMembers = TypedDict(
+    "BillingUsageMembers",
+    {
+        "used": int,
+        "limit": int,
+    },
+)
+
+
+BillingUsageSegments = TypedDict(
+    "BillingUsageSegments",
+    {
+        "used": int,
+        "limit": int,
+    },
+)
+
+
+# This month's usage against the plan, the same numbers as GET /v1/usage. The month is the calendar month in UTC, not the billing period.
+BillingUsage = TypedDict(
+    "BillingUsage",
+    {
+        "period_start": str,
+        "resets_at": str,
+        "emails": BillingUsageEmails,
+        "contacts": BillingUsageContacts,
+        "segments": BillingUsageSegments,
+        "broadcasts": BillingUsageBroadcasts,
+        "domains": BillingUsageDomains,
+        "members": BillingUsageMembers,
+    },
+)
+
+
+Billing = TypedDict(
+    "Billing",
+    {
+        "object": Literal["billing"],
+        "plan": str,
+        "interval": Union[Literal["monthly", "yearly"], None],
+        "status": Union[str, None],
+        "current_period_end": Union[str, None],
+        "cancel_at_period_end": bool,
+        "cancel_at": Union[str, None],
+        "scheduled_change": Union[BillingScheduledChange, None],
+        "payment_issue": Union[BillingPaymentIssue, None],
+        "usage": BillingUsage,
+        "next_tier": Union[BillingNextTier, None],
+    },
+)
+
+
+BillingCheckout = TypedDict(
+    "BillingCheckout",
+    {
+        "object": Literal["billing_checkout"],
+        "action": Literal["checkout", "confirm"],
+        "url": str,
+        "plan": str,
+        "interval": Literal["monthly", "yearly"],
+        "direction": Union[Literal["up", "down", "same"], None],
+        "effective_at": Union[str, None],
+    },
+)
+
+
+BillingPortalSession = TypedDict(
+    "BillingPortalSession",
+    {
+        "object": Literal["billing_portal_session"],
+        "url": str,
+    },
+)
+
+
+Invoice = TypedDict(
+    "Invoice",
+    {
+        "object": Literal["invoice"],
+        "id": str,
+        "number": Union[str, None],
+        "created_at": str,
+        "amount": int,
+        "amount_paid": int,
+        "currency": str,
+        "status": Union[Literal["draft", "open", "paid", "uncollectible", "void"], None],
+        "hosted_invoice_url": Union[str, None],
+        "invoice_pdf": Union[str, None],
+    },
+)
+
+
 ListLogsResponse = TypedDict(
     "ListLogsResponse",
     {
@@ -2188,6 +2439,7 @@ GetEmailMetricsResponse = TypedDict(
         "granularity": Literal["hourly", "daily", "weekly", "monthly"],
         "totals": dict[str, float],
         "data": NotRequired[list[GetEmailMetricsResponseDataItem]],
+        "providers": NotRequired[list[MailboxProviderMetrics]],
     },
 )
 
@@ -2349,12 +2601,41 @@ UpdateInboxThreadParams = TypedDict(
         "folder": NotRequired[Literal["inbox", "archive", "spam", "trash"]],
         "label_id": NotRequired[str],
         "remove_label_id": NotRequired[str],
+        "assignee_email": NotRequired[Union[str, None]],
     },
 )
 
 
 DeleteInboxThreadResponse = TypedDict(
     "DeleteInboxThreadResponse",
+    {
+        "object": NotRequired[str],
+        "id": NotRequired[str],
+        "deleted": NotRequired[bool],
+    },
+)
+
+
+ListInboxThreadNotesResponse = TypedDict(
+    "ListInboxThreadNotesResponse",
+    {
+        "object": NotRequired[str],
+        "has_more": NotRequired[bool],
+        "data": NotRequired[list[InboxThreadNote]],
+    },
+)
+
+
+CreateInboxThreadNoteParams = TypedDict(
+    "CreateInboxThreadNoteParams",
+    {
+        "text": str,
+    },
+)
+
+
+DeleteInboxThreadNoteResponse = TypedDict(
+    "DeleteInboxThreadNoteResponse",
     {
         "object": NotRequired[str],
         "id": NotRequired[str],
@@ -2373,6 +2654,18 @@ ListInboxThreadEmailsResponse = TypedDict(
 )
 
 
+ReplyToInboxThreadEmailParamsAttachmentsItem = TypedDict(
+    "ReplyToInboxThreadEmailParamsAttachmentsItem",
+    {
+        "filename": str,
+        "content": str,
+        "content_type": NotRequired[str],
+        "content_id": NotRequired[str],
+        "inline": NotRequired[bool],
+    },
+)
+
+
 ReplyToInboxThreadEmailParams = TypedDict(
     "ReplyToInboxThreadEmailParams",
     {
@@ -2381,6 +2674,19 @@ ReplyToInboxThreadEmailParams = TypedDict(
         "html": NotRequired[str],
         "text": NotRequired[str],
         "subject": NotRequired[str],
+        "attachments": NotRequired[list[ReplyToInboxThreadEmailParamsAttachmentsItem]],
+    },
+)
+
+
+ForwardInboxThreadEmailParamsAttachmentsItem = TypedDict(
+    "ForwardInboxThreadEmailParamsAttachmentsItem",
+    {
+        "filename": str,
+        "content": str,
+        "content_type": NotRequired[str],
+        "content_id": NotRequired[str],
+        "inline": NotRequired[bool],
     },
 )
 
@@ -2394,6 +2700,7 @@ ForwardInboxThreadEmailParams = TypedDict(
         "html": NotRequired[str],
         "text": NotRequired[str],
         "subject": NotRequired[str],
+        "attachments": NotRequired[list[ForwardInboxThreadEmailParamsAttachmentsItem]],
     },
 )
 
@@ -2455,6 +2762,24 @@ ListInboxDraftsResponse = TypedDict(
 )
 
 
+CreateInboxDraftParamsAttachmentsItem1 = TypedDict(
+    "CreateInboxDraftParamsAttachmentsItem1",
+    {
+        "filename": str,
+        "content": str,
+        "content_type": NotRequired[str],
+    },
+)
+
+
+CreateInboxDraftParamsAttachmentsItem2 = TypedDict(
+    "CreateInboxDraftParamsAttachmentsItem2",
+    {
+        "id": str,
+    },
+)
+
+
 CreateInboxDraftParams = TypedDict(
     "CreateInboxDraftParams",
     {
@@ -2464,8 +2789,27 @@ CreateInboxDraftParams = TypedDict(
         "subject": NotRequired[Union[str, None]],
         "html": NotRequired[Union[str, None]],
         "text": NotRequired[Union[str, None]],
+        "attachments": NotRequired[Union[list[Union[CreateInboxDraftParamsAttachmentsItem1, CreateInboxDraftParamsAttachmentsItem2]], None]],
         "thread_id": NotRequired[str],
         "reply_to_email_id": NotRequired[str],
+    },
+)
+
+
+UpdateInboxDraftParamsAttachmentsItem1 = TypedDict(
+    "UpdateInboxDraftParamsAttachmentsItem1",
+    {
+        "filename": str,
+        "content": str,
+        "content_type": NotRequired[str],
+    },
+)
+
+
+UpdateInboxDraftParamsAttachmentsItem2 = TypedDict(
+    "UpdateInboxDraftParamsAttachmentsItem2",
+    {
+        "id": str,
     },
 )
 
@@ -2479,6 +2823,7 @@ UpdateInboxDraftParams = TypedDict(
         "subject": NotRequired[Union[str, None]],
         "html": NotRequired[Union[str, None]],
         "text": NotRequired[Union[str, None]],
+        "attachments": NotRequired[Union[list[Union[UpdateInboxDraftParamsAttachmentsItem1, UpdateInboxDraftParamsAttachmentsItem2]], None]],
         "revision": NotRequired[int],
     },
 )
@@ -2630,6 +2975,71 @@ GetCapabilitiesResponse = TypedDict(
 )
 
 
+GetAccountActivationResponse = TypedDict(
+    "GetAccountActivationResponse",
+    {
+        "status": Literal["pending", "active", "rejected"],
+        "plan": str,
+        "email_verified": bool,
+        "free_trial_requested_at": Union[str, None],
+        "rejection_reason": Union[str, None],
+    },
+)
+
+
+RequestFreeTrialParams = TypedDict(
+    "RequestFreeTrialParams",
+    {
+        "use_case": str,
+        "source": NotRequired[str],
+        "source_other": NotRequired[str],
+    },
+)
+
+
+RequestFreeTrialResponse = TypedDict(
+    "RequestFreeTrialResponse",
+    {
+        "requested": bool,
+        "message": str,
+    },
+)
+
+
+RedeemActivationInviteParams = TypedDict(
+    "RedeemActivationInviteParams",
+    {
+        "code": str,
+    },
+)
+
+
+RedeemActivationInviteResponse = TypedDict(
+    "RedeemActivationInviteResponse",
+    {
+        "status": Literal["active"],
+        "plan": Literal["free"],
+    },
+)
+
+
+CreateActivationCheckoutParams = TypedDict(
+    "CreateActivationCheckoutParams",
+    {
+        "plan": Literal["starter", "growth", "scale"],
+        "interval": NotRequired[Literal["monthly", "yearly"]],
+    },
+)
+
+
+CreateActivationCheckoutResponse = TypedDict(
+    "CreateActivationCheckoutResponse",
+    {
+        "url": str,
+    },
+)
+
+
 ListTeamMembersResponse = TypedDict(
     "ListTeamMembersResponse",
     {
@@ -2675,6 +3085,33 @@ CreateTeamInviteParams = TypedDict(
 
 
 RevokeTeamInviteResponse: TypeAlias = dict[str, Any]
+
+
+CreateBillingCheckoutParams = TypedDict(
+    "CreateBillingCheckoutParams",
+    {
+        "plan": Literal["starter", "growth", "scale"],
+        "interval": NotRequired[Literal["monthly", "yearly"]],
+    },
+)
+
+
+CreateBillingPortalSessionParams = TypedDict(
+    "CreateBillingPortalSessionParams",
+    {
+        "flow": NotRequired[Literal["cancel"]],
+    },
+)
+
+
+ListBillingInvoicesResponse = TypedDict(
+    "ListBillingInvoicesResponse",
+    {
+        "object": Literal["list"],
+        "has_more": bool,
+        "data": list[Invoice],
+    },
+)
 
 
 ListContactSegmentsResponse: TypeAlias = dict[str, Any]
@@ -2909,6 +3346,137 @@ RevokeApiKeyResponse = TypedDict(
     {
         "success": bool,
         "message": str,
+    },
+)
+
+
+CreateCliDeviceCodeParams = TypedDict(
+    "CreateCliDeviceCodeParams",
+    {
+        "client_name": NotRequired[str],
+        "hostname": NotRequired[str],
+        "scopes": NotRequired[list[str]],
+    },
+)
+
+
+CreateCliDeviceCodeResponse = TypedDict(
+    "CreateCliDeviceCodeResponse",
+    {
+        "device_code": str,
+        "user_code": str,
+        "verification_uri": str,
+        "verification_uri_complete": str,
+        "expires_in": int,
+        "interval": int,
+    },
+)
+
+
+ExchangeCliDeviceCodeParams = TypedDict(
+    "ExchangeCliDeviceCodeParams",
+    {
+        "device_code": str,
+    },
+)
+
+
+ExchangeCliDeviceCodeResponseTeam = TypedDict(
+    "ExchangeCliDeviceCodeResponseTeam",
+    {
+        "id": str,
+        "name": str,
+    },
+)
+
+
+ExchangeCliDeviceCodeResponse = TypedDict(
+    "ExchangeCliDeviceCodeResponse",
+    {
+        "id": str,
+        "name": str,
+        "key": str,
+        "prefix": str,
+        "scopes": list[str],
+        "created_at": str,
+        "team": ExchangeCliDeviceCodeResponseTeam,
+    },
+)
+
+
+StartCliSignupParams = TypedDict(
+    "StartCliSignupParams",
+    {
+        "email": str,
+        "name": NotRequired[str],
+        "newsletter": NotRequired[bool],
+        "client_name": NotRequired[str],
+        "hostname": NotRequired[str],
+    },
+)
+
+
+StartCliSignupResponse = TypedDict(
+    "StartCliSignupResponse",
+    {
+        "signup_id": str,
+        "email": str,
+        "expires_in": int,
+        "code_length": int,
+    },
+)
+
+
+VerifyCliSignupParams = TypedDict(
+    "VerifyCliSignupParams",
+    {
+        "signup_id": str,
+        "code": str,
+    },
+)
+
+
+VerifyCliSignupResponseAccount = TypedDict(
+    "VerifyCliSignupResponseAccount",
+    {
+        "id": str,
+        "email": str,
+        "status": Literal["pending"],
+        "plan": Literal["free"],
+    },
+)
+
+
+VerifyCliSignupResponseActivation = TypedDict(
+    "VerifyCliSignupResponseActivation",
+    {
+        "required": bool,
+        "docs": str,
+    },
+)
+
+
+VerifyCliSignupResponseTeam = TypedDict(
+    "VerifyCliSignupResponseTeam",
+    {
+        "id": str,
+        "name": str,
+    },
+)
+
+
+VerifyCliSignupResponse = TypedDict(
+    "VerifyCliSignupResponse",
+    {
+        "id": str,
+        "name": str,
+        "key": str,
+        "prefix": str,
+        "scopes": list[str],
+        "created_at": str,
+        "team": VerifyCliSignupResponseTeam,
+        "account": VerifyCliSignupResponseAccount,
+        "activation": VerifyCliSignupResponseActivation,
     },
 )
 
