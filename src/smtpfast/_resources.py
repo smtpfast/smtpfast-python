@@ -705,7 +705,7 @@ class ApiKeysResource(_SyncResource):
         """Create API key. `POST /v1/api-keys`"""
         return self._core.request("POST", "/v1/api-keys", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> UpdateApiKeyResponse:
+    def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> ApiKey:
         """Update API key. `PATCH /v1/api-keys/{id}`"""
         return self._core.request("PATCH", "/v1/api-keys/{id}", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -1641,7 +1641,7 @@ class AsyncApiKeysResource(_AsyncResource):
         """Create API key. `POST /v1/api-keys`"""
         return await self._core.request("POST", "/v1/api-keys", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    async def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> UpdateApiKeyResponse:
+    async def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> ApiKey:
         """Update API key. `PATCH /v1/api-keys/{id}`"""
         return await self._core.request("PATCH", "/v1/api-keys/{id}", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 

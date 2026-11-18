@@ -514,11 +514,22 @@ SendEmailRequest = TypedDict(
 )
 
 
+SendWarning = TypedDict(
+    "SendWarning",
+    {
+        "code": str,
+        "message": str,
+        "items": NotRequired[list[int]],
+    },
+)
+
+
 # The id of the accepted email, as Resend returns it. Fetch the email with GET /v1/emails/{id}.
 SendEmailResponse = TypedDict(
     "SendEmailResponse",
     {
         "id": str,
+        "warnings": NotRequired[list[SendWarning]],
     },
 )
 
@@ -636,6 +647,7 @@ BatchSendResponse = TypedDict(
         "count": int,
         "emails": list[BatchSendResponseEmailsItem],
         "data": list[BatchSendResponseDataItem],
+        "warnings": NotRequired[list[SendWarning]],
     },
 )
 
@@ -1047,6 +1059,8 @@ BroadcastMetrics = TypedDict(
         "clicked": NotRequired[int],
         "unsubscribed": NotRequired[int],
         "bounced": NotRequired[int],
+        "hard_bounced": NotRequired[int],
+        "soft_bounced": NotRequired[int],
         "complained": NotRequired[int],
         "failed": NotRequired[int],
         "canceled": NotRequired[int],
@@ -1055,6 +1069,8 @@ BroadcastMetrics = TypedDict(
         "click_rate": NotRequired[float],
         "unsubscribe_rate": NotRequired[float],
         "bounce_rate": NotRequired[float],
+        "hard_bounce_rate": NotRequired[float],
+        "soft_bounce_rate": NotRequired[float],
     },
 )
 
@@ -1246,12 +1262,15 @@ MailboxProviderMetrics = TypedDict(
         "share": float,
         "delivered": int,
         "bounced": int,
+        "hard_bounced": NotRequired[int],
+        "soft_bounced": NotRequired[int],
         "complained": int,
         "tracked_delivered": int,
         "opened": int,
         "delivery_rate": Union[float, None],
         "open_rate": Union[float, None],
         "bounce_rate": Union[float, None],
+        "soft_bounce_rate": NotRequired[Union[float, None]],
         "complaint_rate": Union[float, None],
     },
 )
@@ -1657,6 +1676,7 @@ Domain = TypedDict(
         "domain": str,
         "name": NotRequired[str],
         "status": Literal["pending", "verifying", "verified", "failed"],
+        "dns_live": NotRequired[bool],
         "receiving": NotRequired[DomainReceiving],
         "verification_phase": NotRequired[Literal["verified", "dns_missing", "waiting_on_ses", "mail_from_pending", "failed"]],
         "verification_message": NotRequired[str],
@@ -1984,6 +2004,21 @@ Usage = TypedDict(
 )
 
 
+# Bounces over a rolling window (the last 30 days), counted by when each email was sent. A hard bounce is one SES marked Permanent or Undetermined: the 
+AnalyticsBounces = TypedDict(
+    "AnalyticsBounces",
+    {
+        "days": NotRequired[int],
+        "from": NotRequired[str],
+        "reported": NotRequired[int],
+        "hard": NotRequired[int],
+        "soft": NotRequired[int],
+        "hardRate": NotRequired[float],
+        "softRate": NotRequired[float],
+    },
+)
+
+
 AnalyticsDailyItem = TypedDict(
     "AnalyticsDailyItem",
     {
@@ -2063,6 +2098,7 @@ Analytics = TypedDict(
         "awaitingReport": NotRequired[int],
         "deliveryRate": NotRequired[float],
         "bounceRate": NotRequired[float],
+        "bounces": NotRequired[AnalyticsBounces],
         "daily": NotRequired[list[AnalyticsDailyItem]],
         "usage": NotRequired[AnalyticsUsage],
         "window": NotRequired[AnalyticsWindow],
@@ -3325,17 +3361,6 @@ UpdateApiKeyParams = TypedDict(
     "UpdateApiKeyParams",
     {
         "name": NotRequired[str],
-        "scopes": NotRequired[list[str]],
-    },
-)
-
-
-UpdateApiKeyResponse = TypedDict(
-    "UpdateApiKeyResponse",
-    {
-        "id": NotRequired[str],
-        "name": NotRequired[str],
-        "keyPrefix": NotRequired[str],
         "scopes": NotRequired[list[str]],
     },
 )
