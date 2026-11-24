@@ -331,16 +331,29 @@ class ContactsSegmentsResource(_SyncResource):
         return self._core.request("DELETE", "/v1/contacts/{id}/segments/{segment_id}", path_params={"id": id, "segment_id": segment_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class ContactsTopicsResource(_SyncResource):
+    """`client.contacts.topics`"""
+
+    def list(self, id: str, *, options: RequestOptions | None = None) -> ContactTopicList:
+        """List a contact's topics. `GET /v1/contacts/{id}/topics`"""
+        return self._core.request("GET", "/v1/contacts/{id}/topics", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def update(self, id: str, params: UpdateContactTopicsRequest, *, options: RequestOptions | None = None) -> UpdateContactTopicsResponse:
+        """Update a contact's topics. `PATCH /v1/contacts/{id}/topics`"""
+        return self._core.request("PATCH", "/v1/contacts/{id}/topics", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+
 class ContactsResource(_SyncResource):
     """`client.contacts`"""
 
     def __init__(self, core: Any) -> None:
         super().__init__(core)
         self.segments = ContactsSegmentsResource(core)
+        self.topics = ContactsTopicsResource(core)
 
-    def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
+    def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, topic_id: str | None = None, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
         """List contacts. `GET /v1/contacts`"""
-        return self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "topic_id": topic_id, "limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
 
     def create(self, params: CreateContactParams, *, options: RequestOptions | None = None) -> CreateContactResponse:
         """Create a contact. `POST /v1/contacts`"""
@@ -518,6 +531,30 @@ class BillingResource(_SyncResource):
         return self._core.request("GET", "/v1/billing", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class TopicsResource(_SyncResource):
+    """`client.topics`"""
+
+    def list(self, *, options: RequestOptions | None = None) -> TopicList:
+        """List topics. `GET /v1/topics`"""
+        return self._core.request("GET", "/v1/topics", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def create(self, params: CreateTopicRequest, *, options: RequestOptions | None = None) -> Topic:
+        """Create a topic. `POST /v1/topics`"""
+        return self._core.request("POST", "/v1/topics", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def get(self, id: str, *, options: RequestOptions | None = None) -> Topic:
+        """Retrieve a topic. `GET /v1/topics/{id}`"""
+        return self._core.request("GET", "/v1/topics/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    def update(self, id: str, params: UpdateTopicRequest, *, options: RequestOptions | None = None) -> Topic:
+        """Update a topic. `PATCH /v1/topics/{id}`"""
+        return self._core.request("PATCH", "/v1/topics/{id}", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    def delete(self, id: str, *, options: RequestOptions | None = None) -> DeletedObject:
+        """Delete a topic. `DELETE /v1/topics/{id}`"""
+        return self._core.request("DELETE", "/v1/topics/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
 class SuppressionsResource(_SyncResource):
     """`client.suppressions`"""
 
@@ -581,9 +618,9 @@ class BroadcastsResource(_SyncResource):
         """Delete a draft broadcast. `DELETE /v1/broadcasts/{id}`"""
         return self._core.request("DELETE", "/v1/broadcasts/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
-    def get_audience(self, *, segment_id: str | None = None, options: RequestOptions | None = None) -> GetBroadcastAudienceResponse:
+    def get_audience(self, *, segment_id: str | None = None, topic_id: str | None = None, options: RequestOptions | None = None) -> GetBroadcastAudienceResponse:
         """Preview a broadcast audience. `GET /v1/broadcasts/audience`"""
-        return self._core.request("GET", "/v1/broadcasts/audience", path_params=None, query={"segment_id": segment_id}, body=None, options=options)  # type: ignore[no-any-return]
+        return self._core.request("GET", "/v1/broadcasts/audience", path_params=None, query={"segment_id": segment_id, "topic_id": topic_id}, body=None, options=options)  # type: ignore[no-any-return]
 
     def list_clicked_links(self, id: str, *, options: RequestOptions | None = None) -> ListBroadcastClickedLinksResponse:
         """List clicked links. `GET /v1/broadcasts/{id}/clicked-links`"""
@@ -705,7 +742,7 @@ class ApiKeysResource(_SyncResource):
         """Create API key. `POST /v1/api-keys`"""
         return self._core.request("POST", "/v1/api-keys", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> UpdateApiKeyResponse:
+    def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> ApiKey:
         """Update API key. `PATCH /v1/api-keys/{id}`"""
         return self._core.request("PATCH", "/v1/api-keys/{id}", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -932,6 +969,7 @@ class Resource(_SyncResource):
         self.account = AccountResource(core)
         self.team = TeamResource(core)
         self.billing = BillingResource(core)
+        self.topics = TopicsResource(core)
         self.suppressions = SuppressionsResource(core)
         self.broadcasts = BroadcastsResource(core)
         self.templates = TemplatesResource(core)
@@ -1267,16 +1305,29 @@ class AsyncContactsSegmentsResource(_AsyncResource):
         return await self._core.request("DELETE", "/v1/contacts/{id}/segments/{segment_id}", path_params={"id": id, "segment_id": segment_id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class AsyncContactsTopicsResource(_AsyncResource):
+    """`client.contacts.topics`"""
+
+    async def list(self, id: str, *, options: RequestOptions | None = None) -> ContactTopicList:
+        """List a contact's topics. `GET /v1/contacts/{id}/topics`"""
+        return await self._core.request("GET", "/v1/contacts/{id}/topics", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def update(self, id: str, params: UpdateContactTopicsRequest, *, options: RequestOptions | None = None) -> UpdateContactTopicsResponse:
+        """Update a contact's topics. `PATCH /v1/contacts/{id}/topics`"""
+        return await self._core.request("PATCH", "/v1/contacts/{id}/topics", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+
 class AsyncContactsResource(_AsyncResource):
     """`client.contacts`"""
 
     def __init__(self, core: Any) -> None:
         super().__init__(core)
         self.segments = AsyncContactsSegmentsResource(core)
+        self.topics = AsyncContactsTopicsResource(core)
 
-    async def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
+    async def list(self, *, q: str | None = None, status: Literal["all", "subscribed", "unsubscribed"] | None = None, disposable: bool | None = None, segment_id: str | None = None, topic_id: str | None = None, limit: int | None = None, page: int | None = None, options: RequestOptions | None = None) -> ContactList:
         """List contacts. `GET /v1/contacts`"""
-        return await self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/contacts", path_params=None, query={"q": q, "status": status, "disposable": disposable, "segment_id": segment_id, "topic_id": topic_id, "limit": limit, "page": page}, body=None, options=options)  # type: ignore[no-any-return]
 
     async def create(self, params: CreateContactParams, *, options: RequestOptions | None = None) -> CreateContactResponse:
         """Create a contact. `POST /v1/contacts`"""
@@ -1454,6 +1505,30 @@ class AsyncBillingResource(_AsyncResource):
         return await self._core.request("GET", "/v1/billing", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
 
+class AsyncTopicsResource(_AsyncResource):
+    """`client.topics`"""
+
+    async def list(self, *, options: RequestOptions | None = None) -> TopicList:
+        """List topics. `GET /v1/topics`"""
+        return await self._core.request("GET", "/v1/topics", path_params=None, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def create(self, params: CreateTopicRequest, *, options: RequestOptions | None = None) -> Topic:
+        """Create a topic. `POST /v1/topics`"""
+        return await self._core.request("POST", "/v1/topics", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def get(self, id: str, *, options: RequestOptions | None = None) -> Topic:
+        """Retrieve a topic. `GET /v1/topics/{id}`"""
+        return await self._core.request("GET", "/v1/topics/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+    async def update(self, id: str, params: UpdateTopicRequest, *, options: RequestOptions | None = None) -> Topic:
+        """Update a topic. `PATCH /v1/topics/{id}`"""
+        return await self._core.request("PATCH", "/v1/topics/{id}", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
+
+    async def delete(self, id: str, *, options: RequestOptions | None = None) -> DeletedObject:
+        """Delete a topic. `DELETE /v1/topics/{id}`"""
+        return await self._core.request("DELETE", "/v1/topics/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
+
+
 class AsyncSuppressionsResource(_AsyncResource):
     """`client.suppressions`"""
 
@@ -1517,9 +1592,9 @@ class AsyncBroadcastsResource(_AsyncResource):
         """Delete a draft broadcast. `DELETE /v1/broadcasts/{id}`"""
         return await self._core.request("DELETE", "/v1/broadcasts/{id}", path_params={"id": id}, query=None, body=None, options=options)  # type: ignore[no-any-return]
 
-    async def get_audience(self, *, segment_id: str | None = None, options: RequestOptions | None = None) -> GetBroadcastAudienceResponse:
+    async def get_audience(self, *, segment_id: str | None = None, topic_id: str | None = None, options: RequestOptions | None = None) -> GetBroadcastAudienceResponse:
         """Preview a broadcast audience. `GET /v1/broadcasts/audience`"""
-        return await self._core.request("GET", "/v1/broadcasts/audience", path_params=None, query={"segment_id": segment_id}, body=None, options=options)  # type: ignore[no-any-return]
+        return await self._core.request("GET", "/v1/broadcasts/audience", path_params=None, query={"segment_id": segment_id, "topic_id": topic_id}, body=None, options=options)  # type: ignore[no-any-return]
 
     async def list_clicked_links(self, id: str, *, options: RequestOptions | None = None) -> ListBroadcastClickedLinksResponse:
         """List clicked links. `GET /v1/broadcasts/{id}/clicked-links`"""
@@ -1641,7 +1716,7 @@ class AsyncApiKeysResource(_AsyncResource):
         """Create API key. `POST /v1/api-keys`"""
         return await self._core.request("POST", "/v1/api-keys", path_params=None, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
-    async def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> UpdateApiKeyResponse:
+    async def update(self, id: str, params: UpdateApiKeyParams, *, options: RequestOptions | None = None) -> ApiKey:
         """Update API key. `PATCH /v1/api-keys/{id}`"""
         return await self._core.request("PATCH", "/v1/api-keys/{id}", path_params={"id": id}, query=None, body=params, options=options)  # type: ignore[no-any-return]
 
@@ -1868,6 +1943,7 @@ class AsyncResource(_AsyncResource):
         self.account = AsyncAccountResource(core)
         self.team = AsyncTeamResource(core)
         self.billing = AsyncBillingResource(core)
+        self.topics = AsyncTopicsResource(core)
         self.suppressions = AsyncSuppressionsResource(core)
         self.broadcasts = AsyncBroadcastsResource(core)
         self.templates = AsyncTemplatesResource(core)

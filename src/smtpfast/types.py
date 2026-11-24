@@ -514,11 +514,22 @@ SendEmailRequest = TypedDict(
 )
 
 
+SendWarning = TypedDict(
+    "SendWarning",
+    {
+        "code": str,
+        "message": str,
+        "items": NotRequired[list[int]],
+    },
+)
+
+
 # The id of the accepted email, as Resend returns it. Fetch the email with GET /v1/emails/{id}.
 SendEmailResponse = TypedDict(
     "SendEmailResponse",
     {
         "id": str,
+        "warnings": NotRequired[list[SendWarning]],
     },
 )
 
@@ -636,6 +647,7 @@ BatchSendResponse = TypedDict(
         "count": int,
         "emails": list[BatchSendResponseEmailsItem],
         "data": list[BatchSendResponseDataItem],
+        "warnings": NotRequired[list[SendWarning]],
     },
 )
 
@@ -1015,6 +1027,7 @@ CreateBroadcastRequest = TypedDict(
         "audience": NotRequired[Literal["all_contacts", "segment"]],
         "segment_id": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
+        "topic_id": NotRequired[Union[str, None]],
         "template_id": NotRequired[str],
         "from": NotRequired[str],
         "reply_to": NotRequired[Union[str, None]],
@@ -1047,6 +1060,8 @@ BroadcastMetrics = TypedDict(
         "clicked": NotRequired[int],
         "unsubscribed": NotRequired[int],
         "bounced": NotRequired[int],
+        "hard_bounced": NotRequired[int],
+        "soft_bounced": NotRequired[int],
         "complained": NotRequired[int],
         "failed": NotRequired[int],
         "canceled": NotRequired[int],
@@ -1055,6 +1070,8 @@ BroadcastMetrics = TypedDict(
         "click_rate": NotRequired[float],
         "unsubscribe_rate": NotRequired[float],
         "bounce_rate": NotRequired[float],
+        "hard_bounce_rate": NotRequired[float],
+        "soft_bounce_rate": NotRequired[float],
     },
 )
 
@@ -1068,6 +1085,7 @@ Broadcast = TypedDict(
         "audience": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
         "segment_id": NotRequired[Union[str, None]],
+        "topic_id": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "reply_to": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
@@ -1166,6 +1184,7 @@ BroadcastDetail = TypedDict(
         "audience": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
         "segment_id": NotRequired[Union[str, None]],
+        "topic_id": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "reply_to": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
@@ -1205,6 +1224,7 @@ BroadcastSendResult = TypedDict(
         "audience": NotRequired[str],
         "audience_meta": NotRequired[AudienceMeta],
         "segment_id": NotRequired[Union[str, None]],
+        "topic_id": NotRequired[Union[str, None]],
         "from": NotRequired[Union[str, None]],
         "reply_to": NotRequired[Union[str, None]],
         "subject": NotRequired[Union[str, None]],
@@ -1246,12 +1266,15 @@ MailboxProviderMetrics = TypedDict(
         "share": float,
         "delivered": int,
         "bounced": int,
+        "hard_bounced": NotRequired[int],
+        "soft_bounced": NotRequired[int],
         "complained": int,
         "tracked_delivered": int,
         "opened": int,
         "delivery_rate": Union[float, None],
         "open_rate": Union[float, None],
         "bounce_rate": Union[float, None],
+        "soft_bounce_rate": NotRequired[Union[float, None]],
         "complaint_rate": Union[float, None],
     },
 )
@@ -1457,6 +1480,8 @@ SignupForm = TypedDict(
         "welcome_email_from": NotRequired[Union[str, None]],
         "welcome_email_subject": NotRequired[Union[str, None]],
         "welcome_email_markdown": NotRequired[Union[str, None]],
+        "topic_id": NotRequired[Union[str, None]],
+        "consent_text": NotRequired[Union[str, None]],
         "welcome_stats": NotRequired[SignupFormWelcomeStats],
         "pending_confirmations_count": NotRequired[int],
         "recent_pending_confirmations": NotRequired[list[SignupFormRecentPendingConfirmationsItem]],
@@ -1550,6 +1575,8 @@ CreateSignupFormRequest = TypedDict(
         "welcome_email_from": NotRequired[Union[str, None]],
         "welcome_email_subject": NotRequired[Union[str, None]],
         "welcome_email_markdown": NotRequired[Union[str, None]],
+        "topic_id": NotRequired[Union[str, None]],
+        "consent_text": NotRequired[Union[str, None]],
     },
 )
 
@@ -1576,6 +1603,8 @@ UpdateSignupFormRequest = TypedDict(
         "welcome_email_from": NotRequired[Union[str, None]],
         "welcome_email_subject": NotRequired[Union[str, None]],
         "welcome_email_markdown": NotRequired[Union[str, None]],
+        "topic_id": NotRequired[Union[str, None]],
+        "consent_text": NotRequired[Union[str, None]],
     },
 )
 
@@ -1657,6 +1686,7 @@ Domain = TypedDict(
         "domain": str,
         "name": NotRequired[str],
         "status": Literal["pending", "verifying", "verified", "failed"],
+        "dns_live": NotRequired[bool],
         "receiving": NotRequired[DomainReceiving],
         "verification_phase": NotRequired[Literal["verified", "dns_missing", "waiting_on_ses", "mail_from_pending", "failed"]],
         "verification_message": NotRequired[str],
@@ -1682,6 +1712,7 @@ CreateApiKeyRequest = TypedDict(
     {
         "name": str,
         "scopes": NotRequired[list[str]],
+        "smtp_category": NotRequired[Literal["transactional", "marketing"]],
     },
 )
 
@@ -1695,6 +1726,7 @@ ApiKeyCreated = TypedDict(
         "key": NotRequired[str],
         "prefix": NotRequired[str],
         "scopes": NotRequired[list[str]],
+        "smtp_category": NotRequired[Literal["transactional", "marketing"]],
         "created_at": NotRequired[str],
     },
 )
@@ -1736,6 +1768,7 @@ ApiKey = TypedDict(
         "name": str,
         "prefix": str,
         "scopes": list[str],
+        "smtp_category": NotRequired[Literal["transactional", "marketing"]],
         "created_at": str,
         "last_used_at": NotRequired[Union[str, None]],
         "revoked_at": NotRequired[Union[str, None]],
@@ -1984,6 +2017,21 @@ Usage = TypedDict(
 )
 
 
+# Bounces over a rolling window (the last 30 days), counted by when each email was sent. A hard bounce is one SES marked Permanent or Undetermined: the 
+AnalyticsBounces = TypedDict(
+    "AnalyticsBounces",
+    {
+        "days": NotRequired[int],
+        "from": NotRequired[str],
+        "reported": NotRequired[int],
+        "hard": NotRequired[int],
+        "soft": NotRequired[int],
+        "hardRate": NotRequired[float],
+        "softRate": NotRequired[float],
+    },
+)
+
+
 AnalyticsDailyItem = TypedDict(
     "AnalyticsDailyItem",
     {
@@ -2032,7 +2080,7 @@ AnalyticsWindowRatesPercent = TypedDict(
 )
 
 
-# Present when days or domain is passed
+# Present when days or domain is passed. A rolling window from now minus days x 24 hours to now, in UTC. sent and delivered count emails by when they we
 AnalyticsWindow = TypedDict(
     "AnalyticsWindow",
     {
@@ -2063,6 +2111,7 @@ Analytics = TypedDict(
         "awaitingReport": NotRequired[int],
         "deliveryRate": NotRequired[float],
         "bounceRate": NotRequired[float],
+        "bounces": NotRequired[AnalyticsBounces],
         "daily": NotRequired[list[AnalyticsDailyItem]],
         "usage": NotRequired[AnalyticsUsage],
         "window": NotRequired[AnalyticsWindow],
@@ -2354,6 +2403,114 @@ Invoice = TypedDict(
         "status": Union[Literal["draft", "open", "paid", "uncollectible", "void"], None],
         "hosted_invoice_url": Union[str, None],
         "invoice_pdf": Union[str, None],
+    },
+)
+
+
+TopicSummary = TypedDict(
+    "TopicSummary",
+    {
+        "id": str,
+        "name": str,
+        "description": Union[str, None],
+        "default_subscription": Literal["opt_in", "opt_out"],
+        "visibility": Literal["public", "private"],
+        "created_at": str,
+        "updated_at": str,
+    },
+)
+
+
+Topic = TypedDict(
+    "Topic",
+    {
+        "object": str,
+        "id": str,
+        "name": str,
+        "description": Union[str, None],
+        "default_subscription": Literal["opt_in", "opt_out"],
+        "visibility": Literal["public", "private"],
+        "created_at": str,
+        "updated_at": str,
+        "subscribed_contacts": NotRequired[int],
+    },
+)
+
+
+TopicList = TypedDict(
+    "TopicList",
+    {
+        "object": str,
+        "has_more": bool,
+        "data": list[TopicSummary],
+        "total": int,
+        "topic_limit": int,
+        "subscribed_contacts": int,
+    },
+)
+
+
+CreateTopicRequest = TypedDict(
+    "CreateTopicRequest",
+    {
+        "name": str,
+        "description": NotRequired[Union[str, None]],
+        "default_subscription": Literal["opt_in", "opt_out"],
+        "visibility": NotRequired[Literal["public", "private"]],
+        "subscribe_existing_contacts": NotRequired[bool],
+    },
+)
+
+
+UpdateTopicRequest = TypedDict(
+    "UpdateTopicRequest",
+    {
+        "name": NotRequired[str],
+        "description": NotRequired[Union[str, None]],
+        "visibility": NotRequired[Literal["public", "private"]],
+    },
+)
+
+
+ContactTopic = TypedDict(
+    "ContactTopic",
+    {
+        "id": str,
+        "name": str,
+        "description": Union[str, None],
+        "subscription": Literal["opt_in", "opt_out"],
+        "default_subscription": Literal["opt_in", "opt_out"],
+        "visibility": Literal["public", "private"],
+        "source": Union[Literal["api", "dashboard", "form", "unsubscribe_link", "preference_page", "backfill"], None],
+        "updated_at": Union[str, None],
+    },
+)
+
+
+ContactTopicList = TypedDict(
+    "ContactTopicList",
+    {
+        "object": str,
+        "has_more": bool,
+        "data": list[ContactTopic],
+        "total": int,
+    },
+)
+
+
+UpdateContactTopicsRequestTopicsItem = TypedDict(
+    "UpdateContactTopicsRequestTopicsItem",
+    {
+        "id": str,
+        "subscription": Literal["opt_in", "opt_out"],
+    },
+)
+
+
+UpdateContactTopicsRequest = TypedDict(
+    "UpdateContactTopicsRequest",
+    {
+        "topics": list[UpdateContactTopicsRequestTopicsItem],
     },
 )
 
@@ -3123,6 +3280,15 @@ AddContactToSegmentResponse: TypeAlias = dict[str, Any]
 RemoveContactFromSegmentResponse: TypeAlias = dict[str, Any]
 
 
+UpdateContactTopicsResponse = TypedDict(
+    "UpdateContactTopicsResponse",
+    {
+        "object": str,
+        "id": str,
+    },
+)
+
+
 AddSuppressionsBatchParams = TypedDict(
     "AddSuppressionsBatchParams",
     {
@@ -3326,17 +3492,7 @@ UpdateApiKeyParams = TypedDict(
     {
         "name": NotRequired[str],
         "scopes": NotRequired[list[str]],
-    },
-)
-
-
-UpdateApiKeyResponse = TypedDict(
-    "UpdateApiKeyResponse",
-    {
-        "id": NotRequired[str],
-        "name": NotRequired[str],
-        "keyPrefix": NotRequired[str],
-        "scopes": NotRequired[list[str]],
+        "smtp_category": NotRequired[Literal["transactional", "marketing"]],
     },
 )
 
